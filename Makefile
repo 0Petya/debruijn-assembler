@@ -11,7 +11,7 @@ bundle.js: $(js_files) elm.js
 	browserify src/js/main.js -o bundle.js
 
 elm.js: $(elm_files)
-	elm make src/elm/Main.elm --output=elm.js
+	elm make --debug src/elm/Main.elm --output=elm.js
 
 clean:
 	rm -rf node_modules

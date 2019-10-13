@@ -1,6 +1,14 @@
-module Model exposing (Model)
+module Model exposing (Model, initialModel)
 
 
 type alias Model =
-    { dot : String
+    { sequences : List String
+    , dot : String
+    }
+
+
+initialModel : Model
+initialModel =
+    { sequences = []
+    , dot = "digraph  {A -> B}"
     }

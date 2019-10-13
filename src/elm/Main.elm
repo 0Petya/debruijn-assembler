@@ -2,21 +2,16 @@ module Main exposing (main)
 
 import Browser exposing (element)
 import Message exposing (Msg)
-import Model exposing (Model)
+import Model exposing (Model, initialModel)
 import Ports exposing (renderDot)
 import Update exposing (update)
 import View exposing (view)
 
 
-test_dot : String
-test_dot =
-    "digraph  {A -> B}"
-
-
 main : Program () Model Msg
 main =
     element
-        { init = always ( { dot = test_dot }, Cmd.none )
+        { init = always ( initialModel, Cmd.none )
         , view = view
         , update = update
         , subscriptions = always Sub.none

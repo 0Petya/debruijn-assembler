@@ -13,6 +13,6 @@ view model =
         [ textarea [ class "sequence-input", onInput SequenceInput ]
             []
         , button
-            [ onClick Generate ]
+            [ disabled <| not model.readyToGenerate, onClick Generate ]
             [ text "Generate" ]
         ]

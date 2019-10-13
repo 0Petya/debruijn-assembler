@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import List exposing (map)
+import List exposing (..)
 import Message exposing (..)
 import Model exposing (Model)
 import Ports exposing (renderDot)
@@ -16,8 +16,13 @@ update msg model =
                     sequenceInput
                         |> String.lines
                         |> map String.trim
+                        |> filter ((<=) 3 << String.length)
+
+                readyToGenerate : Bool
+                readyToGenerate =
+                    length sequences >= 2
             in
-            ( { model | sequences = sequences }, Cmd.none )
+            ( { model | sequences = sequences, readyToGenerate = readyToGenerate }, Cmd.none )
 
         Generate ->
             ( model, renderDot model.dot )

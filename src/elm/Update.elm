@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import List exposing (map)
 import Message exposing (..)
 import Model exposing (Model)
 import Ports exposing (renderDot)
@@ -12,7 +13,9 @@ update msg model =
             let
                 sequences : List String
                 sequences =
-                    String.lines sequenceInput
+                    sequenceInput
+                        |> String.lines
+                        |> map String.trim
             in
             ( { model | sequences = sequences }, Cmd.none )
 

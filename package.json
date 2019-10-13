@@ -1,0 +1,17 @@
+{
+  "name": "debruijn-generator",
+  "version": "0.0.1",
+  "description": "A De Bruijn graph generator.",
+  "main": "bundle.js",
+  "dependencies": {
+    "d3": "^5.12.0",
+    "d3-graphviz": "^2.6.1",
+    "require": "^2.4.20"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Peter Tran",
+  "license": "GPL-3.0"
+}

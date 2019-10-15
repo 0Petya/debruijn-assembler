@@ -1,5 +1,6 @@
 module Update exposing (update)
 
+import DeBruijn exposing (compileDot)
 import List exposing (..)
 import Message exposing (..)
 import Model exposing (Model)
@@ -28,4 +29,4 @@ update msg model =
                     ( { model | k = 0 }, Cmd.none )
 
         Generate ->
-            ( model, renderDot model.dot )
+            ( model, renderDot <| compileDot model.sequences model.k )

@@ -14,7 +14,6 @@ view model =
             []
         , input [ class "k-input", onInput KInput ] []
         , button
-            [ disabled <| not model.readyToGenerate || model.error, onClick Generate ]
+            [ onClick Generate ]
             [ text "Generate" ]
-        , p [ class "error-message", hidden <| not model.error ] [ text model.errorMessage ]
         ]

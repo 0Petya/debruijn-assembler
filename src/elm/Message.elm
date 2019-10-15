@@ -2,5 +2,7 @@ module Message exposing (..)
 
 
 type Msg
-    = SequenceInput String
+    = CheckReady
+    | SequenceInput String
+    | KInput String
     | Generate

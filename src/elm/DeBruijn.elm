@@ -1,6 +1,11 @@
 module DeBruijn exposing (compileDot)
 
-import List exposing (..)
+import Set
+
+
+unique : List comparable -> List comparable
+unique =
+    Set.toList << Set.fromList
 
 
 generateKMers : List String -> Int -> List String
@@ -19,17 +24,17 @@ generateKMers sequences k =
             in
             String.left k sequence :: go (String.dropLeft 1 sequence)
     in
-    concatMap slidingSlice sequences
+    unique <| List.concatMap slidingSlice sequences
 
 
 identifyOverlaps : String -> List String -> List String
-identifyOverlaps kmer kmers =
+identifyOverlaps kmer =
     let
         overlapSubject : String
         overlapSubject =
             String.dropLeft 1 kmer
     in
-    filter (\target -> String.dropRight 1 target == overlapSubject) kmers
+    unique << List.filter (\target -> String.dropRight 1 target == overlapSubject)
 
 
 compileDot : List String -> Int -> String
@@ -41,12 +46,12 @@ compileDot sequences k =
 
         overlapGroups : List ( String, List String )
         overlapGroups =
-            map (\kmer -> ( kmer, identifyOverlaps kmer kmers )) kmers
+            List.map (\kmer -> ( kmer, identifyOverlaps kmer kmers )) kmers
 
         digraphConnections : ( String, List String ) -> String
         digraphConnections ( kmer, overlaps ) =
             overlaps
-                |> map (\overlap -> kmer ++ " -> " ++ overlap)
+                |> List.map (\overlap -> kmer ++ " -> " ++ overlap)
                 |> String.join "\n"
     in
-    "digraph {" ++ (String.join "\n" <| map digraphConnections overlapGroups) ++ "}"
+    "digraph {" ++ (String.join "\n" <| List.map digraphConnections overlapGroups) ++ "}"

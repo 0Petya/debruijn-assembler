@@ -1,7 +1,6 @@
 module Update exposing (update)
 
 import DeBruijn exposing (compileDot)
-import List exposing (..)
 import Message exposing (..)
 import Model exposing (Model)
 import Ports exposing (renderDot)
@@ -16,7 +15,7 @@ update msg model =
                 sequences =
                     sequenceInput
                         |> String.lines
-                        |> map String.trim
+                        |> List.map String.trim
             in
             ( { model | sequences = sequences }, Cmd.none )
 

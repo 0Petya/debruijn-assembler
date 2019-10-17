@@ -3,11 +3,6 @@ module DeBruijn exposing (compileDot)
 import Set
 
 
-unique : List comparable -> List comparable
-unique =
-    Set.toList << Set.fromList
-
-
 generateKMers : List String -> Int -> List String
 generateKMers sequences k =
     let
@@ -24,7 +19,7 @@ generateKMers sequences k =
             in
             String.left k sequence :: go (String.dropLeft 1 sequence)
     in
-    unique <| List.concatMap slidingSlice sequences
+    Set.toList << Set.fromList <| List.concatMap slidingSlice sequences
 
 
 identifyOverlaps : String -> List String -> List String
@@ -34,7 +29,7 @@ identifyOverlaps kmer =
         overlapSubject =
             String.dropLeft 1 kmer
     in
-    unique << List.filter (\target -> String.dropRight 1 target == overlapSubject)
+    Set.toList << Set.fromList << List.filter (\target -> String.dropRight 1 target == overlapSubject)
 
 
 compileDot : List String -> Int -> String

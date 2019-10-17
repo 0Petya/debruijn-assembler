@@ -16,4 +16,5 @@ view model =
         , button
             [ onClick Generate ]
             [ text "Generate" ]
+        , div [ class "error-messages" ] <| List.map (\error -> p [] [ text error ]) model.errors
         ]

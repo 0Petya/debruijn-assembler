@@ -3,7 +3,27 @@ module Update exposing (update)
 import DeBruijn exposing (compileDot)
 import Message exposing (..)
 import Model exposing (Model)
-import Ports exposing (renderDot)
+import Ports exposing (clearGraph, renderDot)
+import Set
+
+
+validate : Model -> List String
+validate { sequences, k } =
+    let
+        lengthOfShortestSequence : Int
+        lengthOfShortestSequence =
+            Maybe.withDefault 0 <| List.minimum (List.map String.length sequences)
+
+        validations : List ( Bool, String )
+        validations =
+            [ ( List.length sequences < 2, "Please input two or more sequences." )
+            , ( k <= 2, "Please input a k greater than two." )
+            , ( lengthOfShortestSequence <= k, "k must be smaller than the smallest sequence." )
+            ]
+    in
+    validations
+        |> List.filter (identity << Tuple.first)
+        |> List.map Tuple.second
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -16,6 +36,8 @@ update msg model =
                     sequenceInput
                         |> String.lines
                         |> List.map String.trim
+                        |> List.filter (not << String.isEmpty)
+                        |> (Set.toList << Set.fromList)
             in
             ( { model | sequences = sequences }, Cmd.none )
 
@@ -28,4 +50,9 @@ update msg model =
                     ( { model | k = 0 }, Cmd.none )
 
         Generate ->
-            ( model, renderDot <| compileDot model.sequences model.k )
+            case validate model of
+                [] ->
+                    ( { model | errors = [] }, renderDot <| compileDot model.sequences model.k )
+
+                errors ->
+                    ( { model | errors = errors }, clearGraph () )

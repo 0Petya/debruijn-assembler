@@ -1,6 +1,6 @@
 before_install:
-    npm install -g browserify
-    npm install -g uglify-js
+    - npm install -g browserify
+    - npm install -g uglify-js
 
 language: elm
 elm:
@@ -8,6 +8,9 @@ elm:
 
 script:
     - make env=prod
+
+before_deploy: 
+    - rm .gitignore
 
 deploy:
     provider: pages

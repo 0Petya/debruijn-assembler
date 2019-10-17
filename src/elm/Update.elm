@@ -16,7 +16,7 @@ validate { sequences, k } =
 
         validations : List ( Bool, String )
         validations =
-            [ ( List.length sequences < 2, "Please input two or more sequences." )
+            [ ( List.length sequences < 2, "Please input two or more unique sequences." )
             , ( k <= 2, "Please input a k greater than two." )
             , ( lengthOfShortestSequence <= k, "k must be smaller than the smallest sequence." )
             ]

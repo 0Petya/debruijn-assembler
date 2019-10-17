@@ -1,3 +1,5 @@
+env = dev
+
 .PHONY: all clean
 all: node_modules bundle.js elm.js
 
@@ -8,13 +10,23 @@ node_modules: package.json package-lock.json
 	npm install
 
 bundle.js: $(js_files) elm.js
-	browserify src/js/main.js -o bundle.js
+	browserify src/js/main.js -o build/bundle.js
+	uglifyjs build/bundle.js -c -m -o bundle.min.js
 
 elm.js: $(elm_files)
-	elm make --debug src/elm/Main.elm --output=elm.js
+ifeq ($(env), dev)
+	elm make --debug src/elm/Main.elm --output=build/elm.js
+else
+ifeq ($(env), prod)
+	elm make --optimize src/elm/Main.elm --output=build/elm.js
+endif
+endif
+	uglifyjs build/elm.js -c 'pure_funcs="F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9",pure_getters,keep_fargs=false,unsafe_comps,unsafe' | uglifyjs -m -o elm.min.js
+
 
 clean:
+	rm -rf build
 	rm -rf node_modules
 	rm -rf elm-stuff
-	rm bundle.js
-	rm elm.js
+	rm bundle.min.js
+	rm elm.min.js

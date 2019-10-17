@@ -5,13 +5,13 @@ var app = Elm.Main.init({
     node: document.getElementById('elm-app')
 });
 
-app.ports.renderDot.subscribe((dot) => {
+app.ports.renderDot.subscribe(function (dot) {
     d3.select('#graph').graphviz()
         .renderDot(dot);
 });
 
-app.ports.clearGraph.subscribe(() => {
-    const graph = document.getElementById('graph');
+app.ports.clearGraph.subscribe(function () {
+    var graph = document.getElementById('graph');
     while (graph.firstChild) {
         graph.removeChild(graph.firstChild);
     }

@@ -17,7 +17,7 @@ validate { sequences, k } =
         validations : List ( Bool, String )
         validations =
             [ ( List.length sequences < 2, "Please input two or more unique sequences." )
-            , ( k <= 2, "Please input a k greater than two." )
+            , ( k <= 1, "Please input a k greater than one." )
             , ( lengthOfShortestSequence <= k, "k must be smaller than the smallest sequence." )
             ]
     in
@@ -42,7 +42,7 @@ update msg model =
             ( { model | sequences = sequences }, Cmd.none )
 
         KInput kInput ->
-            case String.toInt kInput of
+            case String.toInt << String.trim <| kInput of
                 Just k ->
                     ( { model | k = k }, Cmd.none )
 

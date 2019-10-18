@@ -23,7 +23,6 @@ endif
 endif
 	uglifyjs build/elm.js -c -m -o elm.min.js
 
-
 clean:
 	rm -rf build
 	rm -rf node_modules

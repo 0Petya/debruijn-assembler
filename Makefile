@@ -1,7 +1,7 @@
 env = dev
 
 .PHONY: all clean
-all: node_modules bundle.js elm.js
+all: node_modules bundle.min.js elm.min.js
 
 elm_files = $(wildcard src/elm/*)
 js_files = $(wildcard src/js/*)
@@ -9,11 +9,11 @@ js_files = $(wildcard src/js/*)
 node_modules: package.json package-lock.json
 	npm install
 
-bundle.js: $(js_files) elm.js
+bundle.min.js: $(js_files) elm.min.js
 	browserify src/js/main.js -o bundle.min.js
 	# uglifyjs build/bundle.js -c -m -o bundle.min.js
 
-elm.js: $(elm_files)
+elm.min.js: $(elm_files)
 ifeq ($(env), dev)
 	elm make --debug src/elm/Main.elm --output=build/elm.js
 else

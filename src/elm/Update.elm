@@ -34,13 +34,13 @@ processSequenceFormat : String -> List String
 processSequenceFormat sequenceInput =
     let
         split : Int -> List a -> List (List a)
-        split i list =
-            case List.take i list of
+        split i xs =
+            case List.take i xs of
                 [] ->
                     []
 
                 x ->
-                    x :: split i (List.drop i list)
+                    x :: split i (List.drop i xs)
 
         processByFormat : List String -> List String
         processByFormat lines =
@@ -50,7 +50,18 @@ processSequenceFormat sequenceInput =
                     |> List.map (Maybe.withDefault "" << List.head << List.drop 1)
 
             else if String.contains ">" sequenceInput then
-                List.filter (not << String.startsWith ">") lines
+                lines
+                    |> List.map
+                        (\x ->
+                            if String.startsWith ">" x then
+                                ","
+
+                            else
+                                x
+                        )
+                    |> String.concat
+                    |> String.split ","
+                    |> List.filter (not << String.isEmpty)
 
             else
                 lines

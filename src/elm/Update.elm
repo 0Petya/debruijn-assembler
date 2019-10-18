@@ -17,7 +17,8 @@ validate { sequences, k } =
         validations : List ( Bool, String )
         validations =
             [ ( List.length sequences < 2, "Please input two or more unique sequences." )
-            , ( k <= 1, "Please input a k greater than one." )
+            , ( List.any identity <| List.map (String.any <| not << Char.isAlphaNum) sequences, "Sequences can only contain alphanumeric characters." )
+            , ( k <= 1, "Please input a k that is greater than one." )
             , ( lengthOfShortestSequence <= k, "k must be smaller than the smallest sequence." )
             ]
     in

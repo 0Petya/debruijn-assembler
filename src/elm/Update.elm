@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (compileDot)
+import DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -100,7 +100,16 @@ update msg model =
         Generate ->
             case validate model of
                 [] ->
-                    ( { model | errors = [] }, renderDot <| compileDot model.sequences model.k )
+                    let
+                        nodes : List String
+                        nodes =
+                            generateKmers model.sequences model.k
+
+                        edges : List ( String, String )
+                        edges =
+                            generateEdges nodes
+                    in
+                    ( { model | graph = Graph nodes edges, errors = [] }, renderDot <| compileDot edges )
 
                 errors ->
                     ( { model | errors = errors }, clearGraph () )

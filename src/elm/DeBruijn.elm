@@ -1,10 +1,16 @@
-module DeBruijn exposing (compileDot)
+module DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers)
 
 import Set
 
 
-generateKMers : List String -> Int -> List String
-generateKMers sequences k =
+type alias Graph =
+    { nodes : List String
+    , edges : List ( String, String )
+    }
+
+
+generateKmers : List String -> Int -> List String
+generateKmers sequences k =
     let
         slidingSlice : String -> List String
         slidingSlice sequence =
@@ -22,31 +28,26 @@ generateKMers sequences k =
     Set.toList << Set.fromList <| List.concatMap slidingSlice sequences
 
 
-identifyOverlaps : String -> List String -> List String
-identifyOverlaps kmer =
+generateEdges : List String -> List ( String, String )
+generateEdges nodes =
     let
-        overlapSubject : String
-        overlapSubject =
-            String.dropLeft 1 kmer
+        identifyOverlaps : String -> List String -> List String
+        identifyOverlaps kmer =
+            let
+                overlapSubject : String
+                overlapSubject =
+                    String.dropLeft 1 kmer
+            in
+            Set.toList << Set.fromList << List.filter (\target -> String.dropRight 1 target == overlapSubject)
     in
-    Set.toList << Set.fromList << List.filter (\target -> String.dropRight 1 target == overlapSubject)
+    List.concatMap (\node -> List.map (\overlap -> ( node, overlap )) <| identifyOverlaps node nodes) nodes
 
 
-compileDot : List String -> Int -> String
-compileDot sequences k =
+compileDot : List ( String, String ) -> String
+compileDot edges =
     let
-        kmers : List String
-        kmers =
-            generateKMers sequences k
-
-        overlapGroups : List ( String, List String )
-        overlapGroups =
-            List.map (\kmer -> ( kmer, identifyOverlaps kmer kmers )) kmers
-
-        digraphConnections : ( String, List String ) -> String
-        digraphConnections ( kmer, overlaps ) =
-            overlaps
-                |> List.map (\overlap -> kmer ++ " -> " ++ overlap)
-                |> String.join "\n"
+        digraphConnections : String
+        digraphConnections =
+            String.join "\n" <| List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB) edges
     in
-    "digraph {" ++ (String.join "\n" <| List.map digraphConnections overlapGroups) ++ "}"
+    "digraph {" ++ digraphConnections ++ "}"

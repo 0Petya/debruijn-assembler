@@ -1,7 +1,7 @@
 env = dev
 
 .PHONY: all clean
-all: node_modules bundle.min.js elm.min.js
+all: node_modules bundle.min.js
 
 elm_files = $(wildcard src/elm/*)
 js_files = $(wildcard src/js/*)

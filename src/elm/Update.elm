@@ -27,20 +27,44 @@ validate { sequences, k } =
         |> List.map Tuple.second
 
 
+processSequenceFormat : String -> List String
+processSequenceFormat sequenceInput =
+    let
+        split : Int -> List a -> List (List a)
+        split i list =
+            case List.take i list of
+                [] ->
+                    []
+
+                x ->
+                    x :: split i (List.drop i list)
+
+        processByFormat : List String -> List String
+        processByFormat lines =
+            if String.contains "@" sequenceInput then
+                lines
+                    |> split 4
+                    |> List.map (Maybe.withDefault "" << List.head << List.drop 1)
+
+            else if String.contains ">" sequenceInput then
+                List.filter (not << String.startsWith ">") lines
+
+            else
+                lines
+    in
+    sequenceInput
+        |> String.lines
+        |> List.map String.trim
+        |> List.filter (not << String.isEmpty)
+        |> processByFormat
+        |> (Set.toList << Set.fromList)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SequenceInput sequenceInput ->
-            let
-                sequences : List String
-                sequences =
-                    sequenceInput
-                        |> String.lines
-                        |> List.map String.trim
-                        |> List.filter (not << String.isEmpty)
-                        |> (Set.toList << Set.fromList)
-            in
-            ( { model | sequences = sequences }, Cmd.none )
+            ( { model | sequences = processSequenceFormat sequenceInput }, Cmd.none )
 
         KInput kInput ->
             case String.toInt << String.trim <| kInput of

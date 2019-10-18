@@ -15,7 +15,7 @@ view model =
         , a [ class "wikipedia-link", href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
             [ text "Wikipedia" ]
         , label []
-            [ text "Sequences"
+            [ text "FASTQ, FASTA, or Raw"
             , textarea [ class "sequence-input", onInput SequenceInput ] []
             ]
         , label []

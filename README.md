@@ -13,7 +13,6 @@ To setup locally for development, you'll need a few dependencies:
 * [Elm](https://elm-lang.org)
 * [Node.js](https://nodejs.org/en/)
 * [Browserify](http://browserify.org/)
-* [UglifyJS](https://www.npmjs.com/package/uglify-js)
 
 To build the project, you just need to execute `make`:
 ```

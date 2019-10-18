@@ -7,6 +7,16 @@ import Message exposing (..)
 import Model exposing (Model)
 
 
+isNotNothing : Maybe a -> Bool
+isNotNothing m =
+    case m of
+        Nothing ->
+            False
+
+        Just _ ->
+            True
+
+
 view : Model -> Html Msg
 view model =
     div [ id "elm" ]
@@ -16,7 +26,11 @@ view model =
             [ text "Wikipedia" ]
         , label []
             [ text "FASTQ, FASTA, or Raw"
-            , textarea [ class "sequence-input", onInput SequenceInput ] []
+            , textarea [ class "sequence-input", disabled <| isNotNothing model.sequenceUploadFileName, onInput SequenceInput ] []
+            ]
+        , div [ class "file-upload" ]
+            [ button [ onClick SequenceUpload ] [ text "Select File" ]
+            , text <| Maybe.withDefault "No file selected" model.sequenceUploadFileName
             ]
         , label []
             [ text "k"

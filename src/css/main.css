@@ -33,7 +33,7 @@ body {
     font-size: 14px;
     padding: 5px 10px;
     border: 0px;
-    border-bottom: 2px solid lightblue;
+    border-bottom: 2px solid lightskyblue;
     width: 250px;
     margin-top: 6px;
 }
@@ -42,9 +42,30 @@ body {
     height: 12em;
 }
 
+#elm .sequence-input:disabled {
+    border-bottom-color: lightgrey;
+    opacity: 0.5;
+}
+
+#elm .file-upload {
+    color: darkslategrey;
+}
+
+#elm .file-upload button {
+    margin-bottom: 2em;
+    margin-right: 0.5em;
+
+    background-color: lightskyblue;
+    box-shadow: 3px 3px 20px 10px #00000006;
+    color: white;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
 #elm .generate {
     width: 200px;
-    background-color: lightblue;
+    background-color: lightskyblue;
     box-shadow: 3px 3px 20px 10px #00000006;
     font-size: 24px;
     padding: 5px 30px;

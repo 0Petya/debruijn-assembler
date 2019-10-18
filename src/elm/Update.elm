@@ -1,10 +1,13 @@
 module Update exposing (update)
 
 import DeBruijn exposing (compileDot)
+import File
+import File.Select as Select
 import Message exposing (..)
 import Model exposing (Model)
 import Ports exposing (clearGraph, renderDot)
 import Set
+import Task
 
 
 validate : Model -> List String
@@ -65,6 +68,15 @@ update msg model =
     case msg of
         SequenceInput sequenceInput ->
             ( { model | sequences = processSequenceFormat sequenceInput }, Cmd.none )
+
+        SequenceUpload ->
+            ( model, Select.file [ "text/plain" ] SequenceSelected )
+
+        SequenceSelected file ->
+            ( { model | sequenceUploadFileName = Just <| File.name file }, Task.perform SequenceLoaded (File.toString file) )
+
+        SequenceLoaded contents ->
+            update (SequenceInput contents) model
 
         KInput kInput ->
             case String.toInt << String.trim <| kInput of

@@ -10,8 +10,8 @@ node_modules: package.json package-lock.json
 	npm install
 
 bundle.min.js: $(js_files) elm.min.js
-	browserify src/js/main.js -o bundle.min.js
-	# uglifyjs build/bundle.js -c -m -o bundle.min.js
+	browserify src/js/main.js -o build/bundle.js
+	uglifyjs build/bundle.js -c -m -o bundle.min.js
 
 elm.min.js: $(elm_files)
 ifeq ($(env), dev)

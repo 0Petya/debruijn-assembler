@@ -63,6 +63,10 @@ body {
     border: 2px solid transparent;
 }
 
+#elm .k-input {
+    margin-bottom: 2em;
+}
+
 #elm .generate {
     width: 200px;
     background-color: lightskyblue;
@@ -78,6 +82,13 @@ body {
 
 #elm .error-messages {
     color: red;
+}
+
+#elm .has-eulerian-path {
+    color: darkslategray;
+    border-top: 2px solid lightgray;
+    margin-top: 2em;
+    padding-top: 1em;
 }
 
 #graph {

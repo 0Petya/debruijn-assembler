@@ -8,6 +8,7 @@ type alias Model =
     , sequenceUploadFileName : Maybe String
     , k : Int
     , graph : Graph
+    , isGenerated : Bool
     , errors : List String
     }
 
@@ -18,5 +19,6 @@ initialModel =
     , sequenceUploadFileName = Nothing
     , k = 0
     , graph = { nodes = [], edges = [] }
+    , isGenerated = False
     , errors = []
     }

@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import DeBruijn exposing (hasEulerianPath)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -25,7 +26,7 @@ view model =
         , a [ class "wikipedia-link", href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
             [ text "Wikipedia" ]
         , label []
-            [ text "FASTQ, FASTA, or Raw"
+            [ text "FASTQ, FASTA, or raw"
             , textarea [ class "sequence-input", disabled <| isNotNothing model.sequenceUploadFileName, onInput SequenceInput ] []
             ]
         , div [ class "file-upload" ]
@@ -39,4 +40,12 @@ view model =
         , button [ class "generate", onClick Generate ]
             [ text "Generate" ]
         , div [ class "error-messages" ] <| List.map (\error -> p [] [ text error ]) model.errors
+        , p [ class "has-eulerian-path", hidden <| not model.isGenerated ]
+            [ text <|
+                if hasEulerianPath model.graph then
+                    "Eulerian paths:"
+
+                else
+                    "No Eulerian paths"
+            ]
         ]

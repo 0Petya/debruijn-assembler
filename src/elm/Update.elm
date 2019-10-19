@@ -109,7 +109,7 @@ update msg model =
                         edges =
                             generateEdges nodes
                     in
-                    ( { model | graph = Graph nodes edges, errors = [] }, renderDot <| compileDot edges )
+                    ( { model | graph = Graph nodes edges, isGenerated = True, errors = [] }, renderDot <| compileDot edges )
 
                 errors ->
-                    ( { model | errors = errors }, clearGraph () )
+                    ( { model | isGenerated = False, errors = errors }, clearGraph () )

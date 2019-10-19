@@ -1,6 +1,6 @@
 module View exposing (view)
 
-import DeBruijn exposing (hasEulerianPath)
+import DeBruijn exposing (hasEulerianPath, hasOnlyOneComponent)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
@@ -42,7 +42,7 @@ view model =
         , div [ class "error-messages" ] <| List.map (\error -> p [] [ text error ]) model.errors
         , p [ class "has-eulerian-path", hidden <| not model.isGenerated ]
             [ text <|
-                if hasEulerianPath model.graph then
+                if hasEulerianPath model.graph && hasOnlyOneComponent model.graph then
                     "Eulerian paths:"
 
                 else

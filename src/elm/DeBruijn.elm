@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers, hasEulerianPath)
+module DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers, hasEulerianPath, hasOnlyOneComponent)
 
 import Set
 
@@ -35,6 +35,47 @@ hasEulerianPath =
         >> List.foldl (\( degree, mag ) ( degreeAcc, magAcc ) -> ( degree + degreeAcc, mag + magAcc )) ( 0, 0 )
         >> Tuple.mapBoth ((==) 0) (not << (<) 2)
         >> (==) ( True, True )
+
+
+findStartingNode : Graph -> String
+findStartingNode =
+    generateDegrees
+        >> List.sortBy Tuple.second
+        >> List.reverse
+        >> List.head
+        >> Maybe.map Tuple.first
+        >> Maybe.withDefault ""
+
+
+hasOnlyOneComponent : Graph -> Bool
+hasOnlyOneComponent graph =
+    let
+        findConnections : String -> List ( String, String ) -> List String
+        findConnections node =
+            List.map Tuple.second << List.filter ((==) node << Tuple.first)
+
+        dfs : String -> List ( String, String ) -> List String -> List String
+        dfs node edges visited =
+            let
+                connections : List String
+                connections =
+                    findConnections node edges
+
+                willHaveVisited : List String
+                willHaveVisited =
+                    node :: visited
+            in
+            if List.member node visited then
+                []
+
+            else
+                willHaveVisited ++ List.concatMap (\x -> dfs x edges willHaveVisited) connections
+    in
+    dfs (findStartingNode graph) graph.edges []
+        |> Set.fromList
+        |> Set.diff (Set.fromList graph.nodes)
+        |> Set.size
+        |> (==) 0
 
 
 generateKmers : List String -> Int -> List String

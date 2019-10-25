@@ -1,11 +1,11 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, Path, compileDot, findPaths, generateGraph, generateKmers)
+import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
 import Model exposing (Model)
-import Ports exposing (clearGraph, renderDot)
+import Ports exposing (..)
 import Set
 import Task
 
@@ -109,7 +109,18 @@ update msg model =
                         paths =
                             findPaths graph
                     in
-                    ( { model | paths = paths, isGenerated = True, errors = [] }, renderDot <| compileDot graph )
+                    ( { model | paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
 
                 errors ->
-                    ( { model | isGenerated = False, errors = errors }, clearGraph () )
+                    ( { model | isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence "&#8203;" ] )
+
+        ViewPath path ->
+            let
+                sequence : String
+                sequence =
+                    path
+                        |> List.map (String.right 1 << Tuple.second)
+                        |> String.join ""
+                        |> (++) (Maybe.withDefault "" << Maybe.map Tuple.first <| List.head path)
+            in
+            ( model, Cmd.batch [ displaySequence sequence, renderDot <| compileDotWithPath path ] )

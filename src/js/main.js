@@ -16,3 +16,7 @@ app.ports.clearGraph.subscribe(function () {
         graph.removeChild(graph.firstChild);
     }
 });
+
+app.ports.displaySequence.subscribe(function (sequence) {
+    document.getElementById('path-sequence').innerHTML = sequence;
+});

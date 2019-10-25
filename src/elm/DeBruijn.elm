@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, findPaths, generateGraph, generateKmers)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
 
 import Set
 
@@ -118,10 +118,20 @@ generateGraph nodes =
 
 
 compileDot : Graph -> String
-compileDot edges =
+compileDot graph =
     let
         digraphConnections : String
         digraphConnections =
-            String.join "\n" <| List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB) edges
+            String.join "\n" <| List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB) graph
     in
     "digraph {" ++ digraphConnections ++ "}"
+
+
+compileDotWithPath : Path -> String
+compileDotWithPath path =
+    let
+        pathConnections : String
+        pathConnections =
+            String.join "\n" <| List.indexedMap (\i ( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]") path
+    in
+    "digraph {" ++ pathConnections ++ "}"

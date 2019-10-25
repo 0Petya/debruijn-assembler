@@ -19,7 +19,7 @@ isNotNothing m =
 
 view : Model -> Html Msg
 view model =
-    div [ id "elm" ]
+    div [ id "panel" ]
         [ h2 [ class "header" ]
             [ text "De Bruijn Graph Generator" ]
         , a [ class "wikipedia-link", href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
@@ -47,4 +47,5 @@ view model =
                 else
                     "Eulerian paths:"
             ]
+        , div [ class "paths" ] (List.indexedMap (\i path -> button [ class "path", onClick (ViewPath path) ] [ text << String.fromInt <| i + 1 ]) model.paths)
         ]

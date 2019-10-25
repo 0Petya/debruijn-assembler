@@ -2,6 +2,19 @@ body {
     display: flex;
 }
 
+button {
+    transition: background-color 0.1s linear;
+    background-color: lightskyblue;
+    box-shadow: 3px 3px 20px 10px #00000006;
+    color: white;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+body #panel button:hover {
+    background-color: deepskyblue;
+}
+
 #panel {
     border-right: 2px solid lightgray;
     padding-right: 10px;
@@ -56,12 +69,7 @@ body {
     margin-bottom: 2em;
     margin-right: 0.5em;
 
-    background-color: lightskyblue;
-    box-shadow: 3px 3px 20px 10px #00000006;
-    color: white;
     border-radius: 2px;
-    cursor: pointer;
-    border: 2px solid transparent;
 }
 
 #panel .k-input {
@@ -70,15 +78,10 @@ body {
 
 #panel .generate {
     width: 200px;
-    background-color: lightskyblue;
-    box-shadow: 3px 3px 20px 10px #00000006;
     font-size: 24px;
     padding: 5px 30px;
-    color: white;
     border-radius: 15px;
     margin: 0 auto;
-    cursor: pointer;
-    border: 2px solid transparent;
 }
 
 #panel .error-messages {
@@ -98,12 +101,7 @@ body {
 }
 
 #panel .path {
-    background-color: lightskyblue;
-    box-shadow: 3px 3px 20px 10px #00000006;
-    color: white;
     border-radius: 2px;
-    cursor: pointer;
-    border: 2px solid transparent;
     width: 4em;
     height: 3em;
     margin-right: 0.5em;

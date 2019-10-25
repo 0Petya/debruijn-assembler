@@ -8,6 +8,7 @@ type alias Model =
     , sequenceUploadFileName : Maybe String
     , k : Int
     , paths : List Path
+    , currentPath : Path
     , isGenerated : Bool
     , errors : List String
     }
@@ -19,6 +20,7 @@ initialModel =
     , sequenceUploadFileName = Nothing
     , k = 0
     , paths = []
+    , currentPath = []
     , isGenerated = False
     , errors = []
     }

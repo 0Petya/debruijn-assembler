@@ -49,5 +49,5 @@ view model =
                 else
                     "Eulerian paths:"
             ]
-        , div [ class "paths" ] (List.indexedMap (\i path -> button [ class "path", onClick (ViewPath path) ] [ text << String.fromInt <| i + 1 ]) model.paths)
+        , div [ class "paths" ] (List.indexedMap (\i path -> button [ classList [ ( "path", True ), ( "current-path", path == model.currentPath ) ], onClick (ViewPath path) ] [ text << String.fromInt <| i + 1 ]) model.paths)
         ]

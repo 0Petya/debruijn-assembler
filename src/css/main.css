@@ -109,6 +109,10 @@ body #panel button:hover {
     font-weight: bold;
 }
 
+#panel .path.current-path {
+    border-color: grey;
+}
+
 #display {
     width: 100%;
 

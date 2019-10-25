@@ -109,10 +109,10 @@ update msg model =
                         paths =
                             findPaths graph
                     in
-                    ( { model | paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
+                    ( { model | currentPath = [], paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
 
                 errors ->
-                    ( { model | isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence "&#8203;" ] )
+                    ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence "&#8203;" ] )
 
         ViewPath path ->
             let
@@ -123,4 +123,4 @@ update msg model =
                         |> String.join ""
                         |> (++) (Maybe.withDefault "" << Maybe.map Tuple.first <| List.head path)
             in
-            ( model, Cmd.batch [ displaySequence sequence, renderDot <| compileDotWithPath path ] )
+            ( { model | currentPath = path }, Cmd.batch [ displaySequence sequence, renderDot <| compileDotWithPath path ] )

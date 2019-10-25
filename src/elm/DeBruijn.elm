@@ -122,7 +122,10 @@ compileDot graph =
     let
         digraphConnections : String
         digraphConnections =
-            String.join "\n" <| List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB) graph
+            graph
+                |> List.sortBy Tuple.first
+                |> List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB)
+                |> String.join "\n"
     in
     "digraph {" ++ digraphConnections ++ "}"
 
@@ -132,6 +135,10 @@ compileDotWithPath path =
     let
         pathConnections : String
         pathConnections =
-            String.join "\n" <| List.indexedMap (\i ( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]") path
+            path
+                |> List.indexedMap (\i ( nodeA, nodeB ) -> ( nodeA, nodeB, i ))
+                |> List.sortBy (\( nodeA, _, _ ) -> nodeA)
+                |> List.map (\( nodeA, nodeB, i ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]")
+                |> String.join "\n"
     in
     "digraph {" ++ pathConnections ++ "}"

@@ -1,7 +1,7 @@
 {
-  "name": "debruijn-generator",
+  "name": "debruijn-assembler",
   "version": "0.0.1",
-  "description": "A De Bruijn graph generator.",
+  "description": "A De Bruijn graph sequence assembler.",
   "main": "bundle.js",
   "dependencies": {
     "d3": "^5.12.0",

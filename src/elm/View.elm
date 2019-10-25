@@ -21,10 +21,10 @@ view : Model -> Html Msg
 view model =
     div [ id "panel" ]
         [ h2 [ class "header" ]
-            [ text "De Bruijn Graph Generator" ]
+            [ text "De Bruijn Graph Sequence Assembler" ]
         , a [ href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
             [ text "Wikipedia" ]
-        , a [ class "source-link", href "https://github.com/0Petya/debruijn-generator" ]
+        , a [ class "source-link", href "https://github.com/0Petya/debruijn-assembler" ]
             [ text "Source" ]
         , label []
             [ text "FASTQ, FASTA, or raw"

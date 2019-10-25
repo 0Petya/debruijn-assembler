@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/0Petya/debruijn-generator.svg?branch=master)](https://travis-ci.org/0Petya/debruijn-generator)
+[![Build Status](https://travis-ci.org/0Petya/debruijn-assembler.svg?branch=master)](https://travis-ci.org/0Petya/debruijn-assembler)
 
-# De Bruijn Graph Generator
+# De Bruijn Graph Sequence Assembler
 
-An online De Bruijn graph generator.
+An online De Bruijn graph sequence assembler.
 
-Check it out [here](https://0petya.github.io/debruijn-generator/)!
+Check it out [here](https://0petya.github.io/debruijn-assembler/)!
 
 # Setup
 

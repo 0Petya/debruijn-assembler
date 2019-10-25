@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers)
+import DeBruijn exposing (Graph, Node, Path, compileDot, findPaths, generateGraph, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -101,15 +101,19 @@ update msg model =
             case validate model of
                 [] ->
                     let
-                        nodes : List String
+                        nodes : List Node
                         nodes =
                             generateKmers model.sequences model.k
 
-                        edges : List ( String, String )
-                        edges =
-                            generateEdges nodes
+                        graph : Graph
+                        graph =
+                            generateGraph nodes
+
+                        paths : List Path
+                        paths =
+                            findPaths graph
                     in
-                    ( { model | graph = Graph nodes edges, isGenerated = True, errors = [] }, renderDot <| compileDot edges )
+                    ( { model | paths = paths, isGenerated = True, errors = [] }, renderDot <| compileDot graph )
 
                 errors ->
                     ( { model | isGenerated = False, errors = errors }, clearGraph () )

@@ -1,13 +1,13 @@
 module Model exposing (Model, initialModel)
 
-import DeBruijn exposing (Graph)
+import DeBruijn exposing (Path)
 
 
 type alias Model =
     { sequences : List String
     , sequenceUploadFileName : Maybe String
     , k : Int
-    , graph : Graph
+    , paths : List Path
     , isGenerated : Bool
     , errors : List String
     }
@@ -18,7 +18,7 @@ initialModel =
     { sequences = []
     , sequenceUploadFileName = Nothing
     , k = 0
-    , graph = { nodes = [], edges = [] }
+    , paths = []
     , isGenerated = False
     , errors = []
     }

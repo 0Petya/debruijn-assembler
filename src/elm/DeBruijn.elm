@@ -1,43 +1,43 @@
-module DeBruijn exposing (Graph, compileDot, generateEdges, generateKmers, hasEulerianPath, hasOnlyOneComponent)
+module DeBruijn exposing (Graph, Node, Path, compileDot, findPaths, generateGraph, generateKmers)
 
 import Set
 
 
+type alias Node =
+    String
+
+
+type alias Edge =
+    ( String, String )
+
+
 type alias Graph =
-    { nodes : List String
-    , edges : List ( String, String )
-    }
+    List Edge
+
+
+type alias Path =
+    List Edge
 
 
 generateDegrees : Graph -> List ( String, Int )
-generateDegrees { nodes, edges } =
+generateDegrees graph =
     let
         outs : List String
         outs =
-            List.map Tuple.first edges
+            List.map Tuple.first graph
 
         ins : List String
         ins =
-            List.map Tuple.second edges
+            List.map Tuple.second graph
 
         count : comparable -> List comparable -> Int
         count x =
             List.length << List.filter ((==) x)
     in
-    List.map (\node -> ( node, count node outs - count node ins )) nodes
+    List.map (\node -> ( node, count node outs - count node ins )) outs
 
 
-hasEulerianPath : Graph -> Bool
-hasEulerianPath =
-    generateDegrees
-        >> List.map Tuple.second
-        >> List.map (\degree -> ( degree, abs degree ))
-        >> List.foldl (\( degree, mag ) ( degreeAcc, magAcc ) -> ( degree + degreeAcc, mag + magAcc )) ( 0, 0 )
-        >> Tuple.mapBoth ((==) 0) (not << (<) 2)
-        >> (==) ( True, True )
-
-
-findStartingNode : Graph -> String
+findStartingNode : Graph -> Node
 findStartingNode =
     generateDegrees
         >> List.sortBy Tuple.second
@@ -47,38 +47,43 @@ findStartingNode =
         >> Maybe.withDefault ""
 
 
-hasOnlyOneComponent : Graph -> Bool
-hasOnlyOneComponent graph =
+findPaths : Graph -> List Path
+findPaths graph =
     let
-        findConnections : String -> List ( String, String ) -> List String
-        findConnections node =
-            List.map Tuple.second << List.filter ((==) node << Tuple.first)
+        nextPaths : ( List Edge, Node, List Edge ) -> List Edge -> List ( List Edge, Node, List Edge )
+        nextPaths ( path, node, edges ) connectingEdges =
+            case connectingEdges of
+                [] ->
+                    []
 
-        dfs : String -> List ( String, String ) -> List String -> List String
-        dfs node edges visited =
-            let
-                connections : List String
-                connections =
-                    findConnections node edges
+                x :: xs ->
+                    ( path ++ [ x ], Tuple.second x, List.filter ((/=) x) edges ) :: nextPaths ( path, node, edges ) xs
 
-                willHaveVisited : List String
-                willHaveVisited =
-                    node :: visited
-            in
-            if List.member node visited then
-                []
+        go : List ( List Edge, Node, List Edge ) -> List Path
+        go acc =
+            case acc of
+                [] ->
+                    []
 
-            else
-                willHaveVisited ++ List.concatMap (\x -> dfs x edges willHaveVisited) connections
+                ( path, _, [] ) :: xs ->
+                    path :: go xs
+
+                ( path, node, edges ) :: xs ->
+                    let
+                        connectingEdges : List Edge
+                        connectingEdges =
+                            List.filter ((==) node << Tuple.first) edges
+                    in
+                    if List.isEmpty connectingEdges then
+                        go xs
+
+                    else
+                        go (nextPaths ( path, node, edges ) connectingEdges ++ xs)
     in
-    dfs (findStartingNode graph) graph.edges []
-        |> Set.fromList
-        |> Set.diff (Set.fromList graph.nodes)
-        |> Set.size
-        |> (==) 0
+    go [ ( [], findStartingNode graph, graph ) ]
 
 
-generateKmers : List String -> Int -> List String
+generateKmers : List String -> Int -> List Node
 generateKmers sequences k =
     let
         slidingSlice : String -> List String
@@ -97,8 +102,8 @@ generateKmers sequences k =
     Set.toList << Set.fromList <| List.concatMap slidingSlice sequences
 
 
-generateEdges : List String -> List ( String, String )
-generateEdges nodes =
+generateGraph : List Node -> Graph
+generateGraph nodes =
     let
         identifyOverlaps : String -> List String -> List String
         identifyOverlaps kmer =
@@ -112,7 +117,7 @@ generateEdges nodes =
     List.concatMap (\node -> List.map (\overlap -> ( node, overlap )) <| identifyOverlaps node nodes) nodes
 
 
-compileDot : List ( String, String ) -> String
+compileDot : Graph -> String
 compileDot edges =
     let
         digraphConnections : String

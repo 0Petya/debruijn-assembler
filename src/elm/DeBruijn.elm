@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Node, Path, compileDot, findPaths, generateGraph, generateKmers)
+module DeBruijn exposing (Graph, Path, compileDot, findPaths, generateGraph, generateKmers)
 
 import Set
 
@@ -19,6 +19,16 @@ type alias Path =
     List Edge
 
 
+findStartingNode : Graph -> Node
+findStartingNode =
+    generateDegrees
+        >> List.sortBy Tuple.second
+        >> List.reverse
+        >> List.head
+        >> Maybe.map Tuple.first
+        >> Maybe.withDefault ""
+
+
 generateDegrees : Graph -> List ( String, Int )
 generateDegrees graph =
     let
@@ -35,16 +45,6 @@ generateDegrees graph =
             List.length << List.filter ((==) x)
     in
     List.map (\node -> ( node, count node outs - count node ins )) outs
-
-
-findStartingNode : Graph -> Node
-findStartingNode =
-    generateDegrees
-        >> List.sortBy Tuple.second
-        >> List.reverse
-        >> List.head
-        >> Maybe.map Tuple.first
-        >> Maybe.withDefault ""
 
 
 findPaths : Graph -> List Path

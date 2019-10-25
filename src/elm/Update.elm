@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, Node, Path, compileDot, findPaths, generateGraph, generateKmers)
+import DeBruijn exposing (Graph, Path, compileDot, findPaths, generateGraph, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -101,13 +101,9 @@ update msg model =
             case validate model of
                 [] ->
                     let
-                        nodes : List Node
-                        nodes =
-                            generateKmers model.sequences model.k
-
                         graph : Graph
                         graph =
-                            generateGraph nodes
+                            generateGraph <| generateKmers model.sequences model.k
 
                         paths : List Path
                         paths =

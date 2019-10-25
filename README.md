@@ -14,7 +14,7 @@ There are three major components to the tool: generating the [kmers](https://en.
 
 * Generating the graph involves identifying `k-1` overlaps for each kmer and compiling to [dot](https://www.graphviz.org/doc/info/lang.html) for [Graphviz](https://www.graphviz.org) and has a time complexity of `O(n^2)` where `n` is the number of kmers. I am unsure the complexity for Graphviz to generate the given graph.
 
-* Finding Eulerian paths uses [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) and has a time complexity of `O(e^2)` where `e` is the number of edges or overlaps.
+* Finding Eulerian paths uses [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) and I am uncertain about the time complexity as each kmer potentially can have branching paths with cycles that each trigger their own DFS.
 
 [More about De Bruijn graphs and their applications in genome assembly](https://en.wikipedia.org/wiki/De_Bruijn_graph).
 

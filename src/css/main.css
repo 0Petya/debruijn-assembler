@@ -9,6 +9,7 @@ button {
     color: white;
     cursor: pointer;
     border: 2px solid transparent;
+    border-radius: 2px;
 }
 
 body #panel button:hover {
@@ -68,8 +69,6 @@ body #panel button:hover {
 #panel .file-upload button {
     margin-bottom: 2em;
     margin-right: 0.5em;
-
-    border-radius: 2px;
 }
 
 #panel .k-input {
@@ -80,7 +79,6 @@ body #panel button:hover {
     width: 200px;
     font-size: 24px;
     padding: 5px 30px;
-    border-radius: 15px;
     margin: 0 auto;
 }
 
@@ -101,7 +99,6 @@ body #panel button:hover {
 }
 
 #panel .path {
-    border-radius: 2px;
     width: 4em;
     height: 3em;
     margin-right: 0.5em;

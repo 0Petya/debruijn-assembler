@@ -22,8 +22,10 @@ view model =
     div [ id "panel" ]
         [ h2 [ class "header" ]
             [ text "De Bruijn Graph Generator" ]
-        , a [ class "wikipedia-link", href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
+        , a [ href "https://en.wikipedia.org/wiki/De_Bruijn_graph" ]
             [ text "Wikipedia" ]
+        , a [ class "source-link", href "https://github.com/0Petya/debruijn-generator" ]
+            [ text "Source" ]
         , label []
             [ text "FASTQ, FASTA, or raw"
             , textarea [ class "sequence-input", disabled <| isNotNothing model.sequenceUploadFileName, onInput SequenceInput ] []

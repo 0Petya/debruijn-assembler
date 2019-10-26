@@ -1,4 +1,4 @@
-module DeBruijn exposing (EdgeLookup, Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
 
 import Dict exposing (Dict)
 import Set
@@ -13,10 +13,6 @@ type alias Edge =
 
 
 type alias Graph =
-    List Edge
-
-
-type alias EdgeLookup =
     Dict Node (List Node)
 
 
@@ -34,28 +30,28 @@ findStartingNode =
         >> Maybe.withDefault ""
 
 
-generateDegrees : Graph -> List ( String, Int )
+generateDegrees : Graph -> List ( Node, Int )
 generateDegrees graph =
     let
-        outs : List String
+        outs : List Node
         outs =
-            List.map Tuple.first graph
+            Dict.keys graph
 
-        ins : List String
+        ins : List Node
         ins =
-            List.map Tuple.second graph
+            List.concat <| Dict.values graph
 
         count : comparable -> List comparable -> Int
         count x =
             List.length << List.filter ((==) x)
     in
-    List.map (\node -> ( node, count node outs - count node ins )) outs
+    List.map (\node -> ( node, (List.length << Maybe.withDefault [] <| Dict.get node graph) - count node ins )) outs
 
 
-findPaths : Graph -> EdgeLookup -> List Path
-findPaths graph edgeLookup =
+findPaths : Graph -> List Path
+findPaths graph =
     let
-        nextPaths : ( List Edge, Node, EdgeLookup ) -> List Node -> List ( List Edge, Node, EdgeLookup )
+        nextPaths : ( List Edge, Node, Graph ) -> List Node -> List ( List Edge, Node, Graph )
         nextPaths ( path, node, lookup ) connectingNodes =
             case connectingNodes of
                 [] ->
@@ -76,13 +72,13 @@ findPaths graph edgeLookup =
                             else
                                 Just removedNode
 
-                        removedConnectingNode : EdgeLookup
+                        removedConnectingNode : Graph
                         removedConnectingNode =
                             Dict.update node (remove << Maybe.withDefault []) lookup
                     in
                     ( path ++ [ ( node, x ) ], x, removedConnectingNode ) :: nextPaths ( path, node, lookup ) xs
 
-        go : List ( List Edge, Node, EdgeLookup ) -> List Path
+        go : List ( List Edge, Node, Graph ) -> List Path
         go acc =
             case acc of
                 [] ->
@@ -104,7 +100,7 @@ findPaths graph edgeLookup =
                         else
                             go (nextPaths ( path, node, lookup ) connectingNodes ++ xs)
     in
-    go [ ( [], findStartingNode graph, edgeLookup ) ]
+    go [ ( [], findStartingNode graph, graph ) ]
 
 
 generateKmers : List String -> Int -> List Node
@@ -126,7 +122,7 @@ generateKmers sequences k =
     Set.toList << Set.fromList <| List.concatMap slidingSlice sequences
 
 
-generateGraph : List Node -> ( Graph, EdgeLookup )
+generateGraph : List Node -> Graph
 generateGraph nodes =
     let
         identifyOverlaps : String -> List String -> List String
@@ -137,12 +133,11 @@ generateGraph nodes =
                     String.dropLeft 1 kmer
             in
             Set.toList << Set.fromList << List.filter (\target -> String.dropRight 1 target == overlapSubject)
-
-        overlapLookup : List ( String, List String )
-        overlapLookup =
-            List.filter (not << List.isEmpty << Tuple.second) <| List.map (\node -> ( node, identifyOverlaps node nodes )) nodes
     in
-    ( List.concatMap (\( node, overlaps ) -> List.map (\overlap -> ( node, overlap )) overlaps) overlapLookup, Dict.fromList overlapLookup )
+    nodes
+        |> List.map (\node -> ( node, identifyOverlaps node nodes ))
+        |> List.filter (not << List.isEmpty << Tuple.second)
+        |> Dict.fromList
 
 
 compileDot : Graph -> String
@@ -151,6 +146,8 @@ compileDot graph =
         digraphConnections : String
         digraphConnections =
             graph
+                |> Dict.toList
+                |> List.concatMap (\( nodeA, connections ) -> List.map (\nodeB -> ( nodeA, nodeB )) connections)
                 |> List.sortBy Tuple.first
                 |> List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB)
                 |> String.join "\n"

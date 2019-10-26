@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (EdgeLookup, Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
+import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -101,12 +101,13 @@ update msg model =
             case validate model of
                 [] ->
                     let
-                        ( graph, edgeLookup ) =
+                        graph : Graph
+                        graph =
                             generateGraph <| generateKmers model.sequences model.k
 
                         paths : List Path
                         paths =
-                            findPaths graph edgeLookup
+                            findPaths graph
                     in
                     ( { model | currentPath = [], paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
 

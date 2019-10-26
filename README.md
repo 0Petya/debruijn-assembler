@@ -4,7 +4,7 @@
 
 An online De Bruijn graph sequence assembler.
 
-You can input raw seqencing reads directly into it, or upload a [FASTQ](https://en.wikipedia.org/wiki/De_Bruijn_graph) or [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file. It will then generate a De Bruijn graph using [d3-graphviz](https://github.com/magjac/d3-graphviz) and will find all possible [Eulerian paths](https://en.wikipedia.org/wiki/Eulerian_path) (the _solutions_) from the only possible node, or a random node if exists an Eulerian cycle. The core is written in [Elm](https://elm-lang.org), a pure functional language that compiles to JavaScript.
+You can input raw seqencing reads directly into it, or upload a [FASTQ](https://en.wikipedia.org/wiki/De_Bruijn_graph) or [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file. It will then generate a De Bruijn graph using [d3-graphviz](https://github.com/magjac/d3-graphviz) and will find all possible [Eulerian paths](https://en.wikipedia.org/wiki/Eulerian_path) (the _solutions_) from the only possible node, or a random node (that will work) if exists an Eulerian cycle. The core is written in [Elm](https://elm-lang.org), a pure functional language that compiles to JavaScript.
 
 This tool is intended for educational use; it's probably too slow to use in production.
 

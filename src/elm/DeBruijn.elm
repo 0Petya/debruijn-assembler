@@ -77,6 +77,16 @@ findStartingNode =
         >> Maybe.withDefault ""
 
 
+hasEulerianPath : Graph -> Bool
+hasEulerianPath =
+    generateDegrees
+        >> List.map Tuple.second
+        >> List.map (\degree -> ( degree, abs degree ))
+        >> List.foldl (\( a, b ) ( aAcc, bBcc ) -> ( a + aAcc, b + bBcc )) ( 0, 0 )
+        >> Tuple.mapBoth (\x -> x == 1 || x == 0) (not << (<) 2)
+        >> (==) ( True, True )
+
+
 findPaths : Graph -> List Path
 findPaths graph =
     let
@@ -129,7 +139,11 @@ findPaths graph =
                         else
                             go (nextPaths ( path, node, lookup ) connectingNodes ++ xs)
     in
-    go [ ( [], findStartingNode graph, graph ) ]
+    if not <| hasEulerianPath graph then
+        []
+
+    else
+        go [ ( [], findStartingNode graph, graph ) ]
 
 
 generateGraph : List Node -> Graph

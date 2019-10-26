@@ -20,14 +20,33 @@ type alias Path =
     List Edge
 
 
-findStartingNode : Graph -> Node
-findStartingNode =
-    generateDegrees
-        >> List.sortBy Tuple.second
-        >> List.reverse
-        >> List.head
-        >> Maybe.map Tuple.first
-        >> Maybe.withDefault ""
+compileDotWithPath : Path -> String
+compileDotWithPath path =
+    let
+        pathConnections : String
+        pathConnections =
+            path
+                |> List.indexedMap (\i ( nodeA, nodeB ) -> ( nodeA, nodeB, i ))
+                |> List.sortBy (\( nodeA, _, _ ) -> nodeA)
+                |> List.map (\( nodeA, nodeB, i ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]")
+                |> String.join "\n"
+    in
+    "digraph {" ++ pathConnections ++ "}"
+
+
+compileDot : Graph -> String
+compileDot graph =
+    let
+        digraphConnections : String
+        digraphConnections =
+            graph
+                |> Dict.toList
+                |> List.concatMap (\( nodeA, connections ) -> List.map (\nodeB -> ( nodeA, nodeB )) connections)
+                |> List.sortBy Tuple.first
+                |> List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB)
+                |> String.join "\n"
+    in
+    "digraph {" ++ digraphConnections ++ "}"
 
 
 generateDegrees : Graph -> List ( Node, Int )
@@ -46,6 +65,16 @@ generateDegrees graph =
             List.length << List.filter ((==) x)
     in
     List.map (\node -> ( node, (List.length << Maybe.withDefault [] <| Dict.get node graph) - count node ins )) outs
+
+
+findStartingNode : Graph -> Node
+findStartingNode =
+    generateDegrees
+        >> List.sortBy Tuple.second
+        >> List.reverse
+        >> List.head
+        >> Maybe.map Tuple.first
+        >> Maybe.withDefault ""
 
 
 findPaths : Graph -> List Path
@@ -103,25 +132,6 @@ findPaths graph =
     go [ ( [], findStartingNode graph, graph ) ]
 
 
-generateKmers : List String -> Int -> List Node
-generateKmers sequences k =
-    let
-        slidingSlice : String -> List String
-        slidingSlice sequence =
-            let
-                go : String -> List String
-                go cutSequence =
-                    if String.length cutSequence > k then
-                        String.left k cutSequence :: go (String.dropLeft 1 cutSequence)
-
-                    else
-                        [ String.left k cutSequence ]
-            in
-            String.left k sequence :: go (String.dropLeft 1 sequence)
-    in
-    Set.toList << Set.fromList <| List.concatMap slidingSlice sequences
-
-
 generateGraph : List Node -> Graph
 generateGraph nodes =
     let
@@ -140,30 +150,20 @@ generateGraph nodes =
         |> Dict.fromList
 
 
-compileDot : Graph -> String
-compileDot graph =
+generateKmers : List String -> Int -> List Node
+generateKmers sequences k =
     let
-        digraphConnections : String
-        digraphConnections =
-            graph
-                |> Dict.toList
-                |> List.concatMap (\( nodeA, connections ) -> List.map (\nodeB -> ( nodeA, nodeB )) connections)
-                |> List.sortBy Tuple.first
-                |> List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB)
-                |> String.join "\n"
-    in
-    "digraph {" ++ digraphConnections ++ "}"
+        slidingSlice : String -> List String
+        slidingSlice sequence =
+            let
+                go : String -> List String
+                go cutSequence =
+                    if String.length cutSequence > k then
+                        String.left k cutSequence :: go (String.dropLeft 1 cutSequence)
 
-
-compileDotWithPath : Path -> String
-compileDotWithPath path =
-    let
-        pathConnections : String
-        pathConnections =
-            path
-                |> List.indexedMap (\i ( nodeA, nodeB ) -> ( nodeA, nodeB, i ))
-                |> List.sortBy (\( nodeA, _, _ ) -> nodeA)
-                |> List.map (\( nodeA, nodeB, i ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]")
-                |> String.join "\n"
+                    else
+                        [ String.left k cutSequence ]
+            in
+            String.left k sequence :: go (String.dropLeft 1 sequence)
     in
-    "digraph {" ++ pathConnections ++ "}"
+    Set.toList << Set.fromList <| List.concatMap slidingSlice sequences

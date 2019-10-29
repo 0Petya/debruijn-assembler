@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers)
 
 import Dict exposing (Dict)
 import Set
@@ -9,7 +9,7 @@ type alias Node =
 
 
 type alias Edge =
-    ( String, String )
+    ( Node, Node )
 
 
 type alias Graph =
@@ -18,6 +18,32 @@ type alias Graph =
 
 type alias Path =
     List Edge
+
+
+cutOutRepeats : Graph -> Graph
+cutOutRepeats graph =
+    let
+        repeats : List Node
+        repeats =
+            Dict.keys <| Dict.filter (\_ connections -> List.length connections > 1) graph
+    in
+    Dict.map
+        (\node connections ->
+            if List.member node repeats then
+                [ "" ]
+
+            else
+                List.filter (\connection -> not <| List.member connection repeats) connections
+        )
+        graph
+
+
+formSequenceFromPath : Path -> String
+formSequenceFromPath path =
+    path
+        |> List.map (String.right 1 << Tuple.second)
+        |> String.join ""
+        |> (++) (Maybe.withDefault "" << Maybe.map Tuple.first <| List.head path)
 
 
 compileDotWithPath : Path -> String
@@ -37,13 +63,21 @@ compileDotWithPath path =
 compileDot : Graph -> String
 compileDot graph =
     let
+        formConnection : ( Node, Node ) -> String
+        formConnection ( nodeA, nodeB ) =
+            if String.isEmpty nodeB then
+                nodeA
+
+            else
+                nodeA ++ " -> " ++ nodeB
+
         digraphConnections : String
         digraphConnections =
             graph
                 |> Dict.toList
                 |> List.concatMap (\( nodeA, connections ) -> List.map (\nodeB -> ( nodeA, nodeB )) connections)
                 |> List.sortBy Tuple.first
-                |> List.map (\( nodeA, nodeB ) -> nodeA ++ " -> " ++ nodeB)
+                |> List.map formConnection
                 |> String.join "\n"
     in
     "digraph {" ++ digraphConnections ++ "}"

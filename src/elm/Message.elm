@@ -12,3 +12,4 @@ type Msg
     | KInput String
     | Generate
     | ViewPath Path
+    | CutRepeats

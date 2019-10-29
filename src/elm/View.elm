@@ -50,4 +50,6 @@ view model =
                     "Eulerian paths:"
             ]
         , div [ class "paths" ] (List.indexedMap (\i path -> button [ classList [ ( "path", True ), ( "current-path", path == model.currentPath ) ], onClick (ViewPath path) ] [ text << String.fromInt <| i + 1 ]) model.paths)
+        , button [ class "cut-repeats", onClick CutRepeats, hidden <| List.isEmpty model.paths ]
+            [ text "Cut Out Repeats" ]
         ]

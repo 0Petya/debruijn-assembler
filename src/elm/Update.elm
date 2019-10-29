@@ -1,6 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, generateGraph, generateKmers)
+import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -108,18 +108,13 @@ update msg model =
                         paths =
                             findPaths graph
                     in
-                    ( { model | currentPath = [], paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
+                    ( { model | currentPath = [], graph = graph, paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
 
                 errors ->
                     ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence "&#8203;" ] )
 
         ViewPath path ->
-            let
-                sequence : String
-                sequence =
-                    path
-                        |> List.map (String.right 1 << Tuple.second)
-                        |> String.join ""
-                        |> (++) (Maybe.withDefault "" << Maybe.map Tuple.first <| List.head path)
-            in
-            ( { model | currentPath = path }, Cmd.batch [ displaySequence sequence, renderDot <| compileDotWithPath path ] )
+            ( { model | currentPath = path }, Cmd.batch [ displaySequence <| formSequenceFromPath path, renderDot <| compileDotWithPath path ] )
+
+        CutRepeats ->
+            ( model, Cmd.batch [ displaySequence "&#8203;", renderDot << compileDot <| cutOutRepeats model.graph ] )

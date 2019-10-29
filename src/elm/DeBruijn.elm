@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromCutGraph)
 
 import Dict exposing (Dict)
 import Set
@@ -20,14 +20,57 @@ type alias Path =
     List Edge
 
 
-cutOutRepeats : Graph -> Graph
+getPathsFromCutGraph : Graph -> List Node -> List Path
+getPathsFromCutGraph cutGraph repeats =
+    let
+        getAStart : Graph -> Maybe Node
+        getAStart =
+            generateDegrees
+                >> List.filter ((<) 0 << Tuple.second)
+                >> List.head
+                >> Maybe.map Tuple.first
+
+        getPaths : ( Path, Maybe Node, Graph ) -> List Path
+        getPaths ( path, node, edges ) =
+            case node of
+                Nothing ->
+                    []
+
+                Just nodeA ->
+                    let
+                        connections : Maybe (List Node)
+                        connections =
+                            Dict.get nodeA edges
+
+                        culledEdges : Graph
+                        culledEdges =
+                            Dict.remove nodeA edges
+                    in
+                    case connections of
+                        Nothing ->
+                            List.reverse path :: getPaths ( [], getAStart culledEdges, culledEdges )
+
+                        Just xs ->
+                            case xs of
+                                [] ->
+                                    List.reverse path :: getPaths ( [], getAStart culledEdges, culledEdges )
+
+                                nodeB :: _ ->
+                                    getPaths ( ( nodeA, nodeB ) :: path, Just nodeB, culledEdges )
+    in
+    cutGraph
+        |> Dict.filter (\node _ -> not <| List.member node repeats)
+        |> (\edges -> getPaths ( [], getAStart edges, edges ))
+
+
+cutOutRepeats : Graph -> ( Graph, List Node )
 cutOutRepeats graph =
     let
         repeats : List Node
         repeats =
             Dict.keys <| Dict.filter (\_ connections -> List.length connections > 1) graph
     in
-    Dict.map
+    ( Dict.map
         (\node connections ->
             if List.member node repeats then
                 [ "" ]
@@ -36,6 +79,8 @@ cutOutRepeats graph =
                 List.filter (\connection -> not <| List.member connection repeats) connections
         )
         graph
+    , repeats
+    )
 
 
 formSequenceFromPath : Path -> String

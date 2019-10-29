@@ -1,6 +1,7 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers)
+import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromCutGraph)
+import Dict exposing (Dict)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -108,13 +109,25 @@ update msg model =
                         paths =
                             findPaths graph
                     in
-                    ( { model | currentPath = [], graph = graph, paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence "&#8203;" ] )
+                    ( { model | currentPath = [], graph = graph, paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence [ "&#8203;" ] ] )
 
                 errors ->
-                    ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence "&#8203;" ] )
+                    ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence [ "&#8203;" ] ] )
 
         ViewPath path ->
-            ( { model | currentPath = path }, Cmd.batch [ displaySequence <| formSequenceFromPath path, renderDot <| compileDotWithPath path ] )
+            ( { model | currentPath = path }, Cmd.batch [ displaySequence [ formSequenceFromPath path ], renderDot <| compileDotWithPath path ] )
 
         CutRepeats ->
-            ( { model | currentPath = [ ( "repeat", "repeat" ) ] }, Cmd.batch [ displaySequence "&#8203;", renderDot << compileDot <| cutOutRepeats model.graph ] )
+            let
+                ( cutGraph, repeats ) =
+                    cutOutRepeats model.graph
+
+                uniqueSequences : String
+                uniqueSequences =
+                    (++) "Unique: " << String.join " " << List.map formSequenceFromPath <| getPathsFromCutGraph cutGraph repeats
+
+                repeatSequences : String
+                repeatSequences =
+                    (++) "Repeat: " <| String.join " " repeats
+            in
+            ( { model | currentPath = [ ( "repeat", "repeat" ) ] }, Cmd.batch [ displaySequence [ uniqueSequences, repeatSequences ], renderDot <| compileDot cutGraph ] )

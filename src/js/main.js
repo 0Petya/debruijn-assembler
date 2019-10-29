@@ -18,5 +18,5 @@ app.ports.clearGraph.subscribe(function () {
 });
 
 app.ports.displaySequence.subscribe(function (sequence) {
-    document.getElementById('path-sequence').innerHTML = sequence;
+    document.getElementById('path-sequence').innerHTML = sequence.join("<br>");
 });

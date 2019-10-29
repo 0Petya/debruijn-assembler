@@ -117,4 +117,4 @@ update msg model =
             ( { model | currentPath = path }, Cmd.batch [ displaySequence <| formSequenceFromPath path, renderDot <| compileDotWithPath path ] )
 
         CutRepeats ->
-            ( model, Cmd.batch [ displaySequence "&#8203;", renderDot << compileDot <| cutOutRepeats model.graph ] )
+            ( { model | currentPath = [ ( "repeat", "repeat" ) ] }, Cmd.batch [ displaySequence "&#8203;", renderDot << compileDot <| cutOutRepeats model.graph ] )

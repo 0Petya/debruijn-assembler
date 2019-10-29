@@ -106,7 +106,12 @@ body #panel button:hover {
     font-weight: bold;
 }
 
-#panel .path.current-path {
+#panel .cut-repeats {
+    height: 3em;
+    width: 17.5em;
+}
+
+#panel .current-path {
     border-color: grey;
 }
 

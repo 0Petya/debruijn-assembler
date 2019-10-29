@@ -49,7 +49,27 @@ view model =
                 else
                     "Eulerian paths:"
             ]
-        , div [ class "paths" ] (List.indexedMap (\i path -> button [ classList [ ( "path", True ), ( "current-path", path == model.currentPath ) ], onClick (ViewPath path) ] [ text << String.fromInt <| i + 1 ]) model.paths)
-        , button [ class "cut-repeats", onClick CutRepeats, hidden <| List.isEmpty model.paths ]
+        , div [ class "paths" ]
+            (List.indexedMap
+                (\i path ->
+                    button
+                        [ classList
+                            [ ( "path", True )
+                            , ( "current-path", path == model.currentPath )
+                            ]
+                        , onClick (ViewPath path)
+                        ]
+                        [ text << String.fromInt <| i + 1 ]
+                )
+                model.paths
+            )
+        , button
+            [ classList
+                [ ( "cut-repeats", True )
+                , ( "current-path", model.currentPath == [ ( "repeat", "repeat" ) ] )
+                ]
+            , onClick CutRepeats
+            , hidden <| List.isEmpty model.paths
+            ]
             [ text "Cut Out Repeats" ]
         ]

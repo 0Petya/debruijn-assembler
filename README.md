@@ -16,7 +16,7 @@ There are four major components to the tool: generating the [kmers](https://en.w
 
 * Finding Eulerian paths uses [depth-first search](https://en.wikipedia.org/wiki/Depth-first_search) and I am uncertain about the time complexity as each kmer potentially can have branching paths with cycles that each trigger their own DFS.
 
-* Resolving the repeats involves cutting out repeats found in the graph then uses a very similar algorithm to what's used in finding all the Eulerian paths to find each individual sequence. Finding repeats and cutting them out has a time complexity of `O(n)` where `n` is the number of kmers. Finding those individual paths in the cut graph has a time complexity of `O(n + o)` where `N` is the number of kmers and `o` is the number of overlaps. It's much quicker than finding all the Eulerian paths due to having the repeats cut out removes the possibility for any branching paths.
+* Resolving the repeats involves cutting out repeats found in the graph then uses a very similar algorithm to what's used in finding all the Eulerian paths to find each individual sequence. Finding repeats and cutting them out has a time complexity of `O(n)` where `n` is the number of kmers. Finding those individual paths in the cut graph has a time complexity of `O(n+o)` where `N` is the number of kmers and `o` is the number of overlaps. It's much quicker than finding all the Eulerian paths due to having the repeats cut out removes the possibility for any branching paths.
 
 [More about De Bruijn graphs and their applications in genome assembly](https://en.wikipedia.org/wiki/De_Bruijn_graph).
 

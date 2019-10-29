@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromCutGraph)
+module DeBruijn exposing (Graph, compileDot, compileDotWithPath, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
 
 import Dict exposing (Dict)
 import Set
@@ -20,8 +20,8 @@ type alias Path =
     List Edge
 
 
-getPathsFromCutGraph : Graph -> List Node -> List Path
-getPathsFromCutGraph cutGraph repeats =
+getPathsFromResolvedGraph : Graph -> List Node -> List Path
+getPathsFromResolvedGraph cutGraph repeats =
     let
         getAStart : Graph -> Maybe Node
         getAStart =
@@ -63,8 +63,8 @@ getPathsFromCutGraph cutGraph repeats =
         |> (\edges -> getPaths ( [], getAStart edges, edges ))
 
 
-cutOutRepeats : Graph -> ( Graph, List Node )
-cutOutRepeats graph =
+resolveRepeats : Graph -> ( Graph, List Node )
+resolveRepeats graph =
     let
         repeats : List Node
         repeats =

@@ -71,5 +71,5 @@ view model =
             , onClick CutRepeats
             , hidden <| List.length model.paths <= 1
             ]
-            [ text "Cut Out Repeats" ]
+            [ text "Resolve Repeats" ]
         ]

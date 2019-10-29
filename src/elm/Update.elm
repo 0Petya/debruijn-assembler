@@ -1,7 +1,6 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, cutOutRepeats, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromCutGraph)
-import Dict exposing (Dict)
+import DeBruijn exposing (Graph, compileDot, compileDotWithPath, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
 import File
 import File.Select as Select
 import Message exposing (..)
@@ -104,12 +103,8 @@ update msg model =
                         graph : Graph
                         graph =
                             generateGraph <| generateKmers model.sequences model.k
-
-                        paths : List Path
-                        paths =
-                            findPaths graph
                     in
-                    ( { model | currentPath = [], graph = graph, paths = paths, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence [ "&#8203;" ] ] )
+                    ( { model | currentPath = [], graph = graph, paths = findPaths graph, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence [ "&#8203;" ] ] )
 
                 errors ->
                     ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence [ "&#8203;" ] ] )
@@ -120,11 +115,11 @@ update msg model =
         CutRepeats ->
             let
                 ( cutGraph, repeats ) =
-                    cutOutRepeats model.graph
+                    resolveRepeats model.graph
 
                 uniqueSequences : String
                 uniqueSequences =
-                    (++) "Unique: " << String.join " " << List.map formSequenceFromPath <| getPathsFromCutGraph cutGraph repeats
+                    (++) "Unique: " << String.join " " << List.map formSequenceFromPath <| getPathsFromResolvedGraph cutGraph repeats
 
                 repeatSequences : String
                 repeatSequences =

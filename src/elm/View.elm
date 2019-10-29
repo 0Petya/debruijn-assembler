@@ -69,7 +69,7 @@ view model =
                 , ( "current-path", model.currentPath == [ ( "repeat", "repeat" ) ] )
                 ]
             , onClick CutRepeats
-            , hidden <| List.isEmpty model.paths
+            , hidden <| List.length model.paths <= 1
             ]
             [ text "Cut Out Repeats" ]
         ]

@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, compressGraph, findPaths, formSequenceFromPath, generateDegrees, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
 
 import Dict exposing (Dict)
 import Set
@@ -223,6 +223,119 @@ findPaths graph =
 
     else
         go [ ( [], findStartingNode graph, graph ) ]
+
+
+compressGraph : Graph -> Graph
+compressGraph graph =
+    let
+        compressible : List Node
+        compressible =
+            List.map Tuple.first << List.filter ((>=) 1 << abs << Tuple.second) <| generateDegrees graph
+
+        findPrevious : Node -> Maybe Node
+        findPrevious node =
+            List.head << Dict.keys <| Dict.filter (\previous connections -> List.member node connections) graph
+
+        compressibleRoots : List Node
+        compressibleRoots =
+            let
+                isCompressibleRoot : Node -> Bool
+                isCompressibleRoot node =
+                    case findPrevious node of
+                        Nothing ->
+                            True
+
+                        Just parent ->
+                            not <| List.member parent compressible
+            in
+            List.filter isCompressibleRoot compressible
+
+        findNextCompressible : Node -> Graph -> Maybe Node
+        findNextCompressible node =
+            Maybe.andThen (List.head << List.filter (\next -> List.member next compressible)) << Dict.get node
+
+        compress : List Node -> Graph -> Graph
+        compress toCompress graphAcc =
+            case toCompress of
+                [] ->
+                    graphAcc
+
+                root :: roots ->
+                    let
+                        updatedWithCompressedSection : Graph
+                        updatedWithCompressedSection =
+                            let
+                                compressSection : Node -> List Node -> Path
+                                compressSection node visited =
+                                    case findNextCompressible node graphAcc of
+                                        Nothing ->
+                                            []
+
+                                        Just next ->
+                                            if List.member next visited then
+                                                []
+
+                                            else
+                                                ( node, next ) :: compressSection next (node :: visited)
+
+                                compressedSection : Path
+                                compressedSection =
+                                    compressSection root []
+
+                                compressedNodes : List Node
+                                compressedNodes =
+                                    List.concat <| List.map (\( a, b ) -> [ a, b ]) compressedSection
+
+                                lastCompressedNode : Node
+                                lastCompressedNode =
+                                    Tuple.second << Maybe.withDefault ( "", "" ) << List.head <| List.reverse compressedSection
+
+                                sequence : Node
+                                sequence =
+                                    formSequenceFromPath compressedSection
+
+                                lastConnections : List Node
+                                lastConnections =
+                                    case Dict.get lastCompressedNode graphAcc of
+                                        Nothing ->
+                                            []
+
+                                        Just connections ->
+                                            if List.member lastCompressedNode connections then
+                                                []
+
+                                            else
+                                                connections
+
+                                updatePrevious : Graph -> Graph
+                                updatePrevious graphAcc_ =
+                                    case findPrevious root of
+                                        Nothing ->
+                                            graphAcc_
+
+                                        Just previous ->
+                                            Dict.update previous
+                                                (Just
+                                                    << List.map
+                                                        (\connection ->
+                                                            if connection == root then
+                                                                sequence
+
+                                                            else
+                                                                connection
+                                                        )
+                                                    << Maybe.withDefault []
+                                                )
+                                                graphAcc_
+                            in
+                            graphAcc
+                                |> Dict.filter (\node _ -> not <| List.member node compressedNodes)
+                                |> Dict.insert sequence lastConnections
+                                |> updatePrevious
+                    in
+                    compress roots updatedWithCompressedSection
+    in
+    compress compressibleRoots graph
 
 
 generateGraph : List Node -> Graph

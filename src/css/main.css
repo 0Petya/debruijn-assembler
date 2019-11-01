@@ -4,7 +4,7 @@ body {
 
 button {
     transition: background-color 0.1s linear;
-    background-color: lightskyblue;
+    background-color: deepskyblue;
     box-shadow: 3px 3px 20px 10px #00000006;
     color: white;
     cursor: pointer;
@@ -13,7 +13,7 @@ button {
 }
 
 body #panel button:hover {
-    background-color: deepskyblue;
+    background-color: cornflowerblue;
 }
 
 #panel {
@@ -48,7 +48,7 @@ body #panel button:hover {
     font-size: 14px;
     padding: 5px 10px;
     border: 0px;
-    border-bottom: 2px solid lightskyblue;
+    border-bottom: 2px solid deepskyblue;
     width: 250px;
     margin-top: 6px;
 }

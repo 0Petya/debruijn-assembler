@@ -41,35 +41,39 @@ view model =
         , button [ class "generate", onClick Generate ]
             [ text "Generate" ]
         , div [ class "error-messages" ] <| List.map (\error -> p [] [ text error ]) model.errors
-        , p [ class "has-eulerian-path", hidden <| not model.isGenerated ]
-            [ text <|
-                if List.isEmpty model.paths then
-                    "No Eulerian paths"
+        , button [ class "compress", onClick Compress, hidden <| not model.isGenerated ]
+            [ text "Compress" ]
+        , div [ hidden << not <| model.isGenerated && model.isCompressed ]
+            [ p [ class "has-eulerian-path" ]
+                [ text <|
+                    if List.isEmpty model.paths then
+                        "No Eulerian paths"
 
-                else
-                    "Eulerian paths:"
-            ]
-        , div [ class "paths" ]
-            (List.indexedMap
-                (\i path ->
-                    button
-                        [ classList
-                            [ ( "path", True )
-                            , ( "current-path", path == model.currentPath )
-                            ]
-                        , onClick (ViewPath path)
-                        ]
-                        [ text << String.fromInt <| i + 1 ]
-                )
-                model.paths
-            )
-        , button
-            [ classList
-                [ ( "cut-repeats", True )
-                , ( "current-path", model.currentPath == [ ( "repeat", "repeat" ) ] )
+                    else
+                        "Eulerian paths:"
                 ]
-            , onClick CutRepeats
-            , hidden <| List.length model.paths <= 1
+            , div [ class "paths" ]
+                (List.indexedMap
+                    (\i path ->
+                        button
+                            [ classList
+                                [ ( "path", True )
+                                , ( "current-path", path == model.currentPath )
+                                ]
+                            , onClick (ViewPath path)
+                            ]
+                            [ text << String.fromInt <| i + 1 ]
+                    )
+                    model.paths
+                )
+            , button
+                [ classList
+                    [ ( "cut-repeats", True )
+                    , ( "current-path", model.currentPath == [ ( "repeat", "repeat" ) ] )
+                    ]
+                , onClick CutRepeats
+                , hidden <| List.length model.paths <= 1
+                ]
+                [ text "Resolve Repeats" ]
             ]
-            [ text "Resolve Repeats" ]
         ]

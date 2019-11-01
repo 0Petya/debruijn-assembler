@@ -104,10 +104,18 @@ update msg model =
                         graph =
                             generateGraph <| generateKmers model.sequences model.k
                     in
-                    ( { model | currentPath = [], graph = graph, paths = findPaths graph, isGenerated = True, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence [ "&#8203;" ] ] )
+                    ( { model | currentPath = [], graph = graph, paths = findPaths graph, isGenerated = True, isCompressed = False, errors = [] }, Cmd.batch [ renderDot <| compileDot graph, displaySequence [ "&#8203;" ] ] )
 
                 errors ->
                     ( { model | currentPath = [], isGenerated = False, errors = errors }, Cmd.batch [ clearGraph (), displaySequence [ "&#8203;" ] ] )
+
+        Compress ->
+            let
+                compressed : Graph
+                compressed =
+                    compressGraph model.graph
+            in
+            ( { model | currentPath = [], graph = compressed, paths = findPaths compressed, isCompressed = True }, Cmd.batch [ renderDot <| compileDot compressed, displaySequence [ "&#8203;" ] ] )
 
         ViewPath path ->
             ( { model | currentPath = path }, Cmd.batch [ displaySequence [ formSequenceFromPath path ], renderDot <| compileDotWithPath path ] )

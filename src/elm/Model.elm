@@ -12,6 +12,7 @@ type alias Model =
     , paths : List Path
     , currentPath : Path
     , isGenerated : Bool
+    , isCompressed : Bool
     , errors : List String
     }
 
@@ -25,5 +26,6 @@ initialModel =
     , paths = []
     , currentPath = []
     , isGenerated = False
+    , isCompressed = False
     , errors = []
     }

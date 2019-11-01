@@ -11,5 +11,6 @@ type Msg
     | SequenceLoaded String
     | KInput String
     | Generate
+    | Compress
     | ViewPath Path
     | CutRepeats

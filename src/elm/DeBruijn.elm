@@ -1,4 +1,4 @@
-module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, compressGraph, findPaths, formSequenceFromPath, generateDegrees, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
+module DeBruijn exposing (Graph, Path, compileDot, compileDotWithPath, compressGraph, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
 
 import Dict exposing (Dict)
 import Set

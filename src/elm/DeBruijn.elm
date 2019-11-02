@@ -34,16 +34,19 @@ generateDegrees graph =
     List.map (\node -> ( node, List.length << Maybe.withDefault [] <| Dict.get node graph, count node ins )) <| Dict.keys graph
 
 
+findStartingNode : Graph -> Maybe Node
+findStartingNode =
+    generateDegrees
+        >> List.map (\( node, outs, ins ) -> ( node, outs - ins ))
+        >> List.sortBy Tuple.second
+        >> List.reverse
+        >> List.head
+        >> Maybe.map Tuple.first
+
+
 getPathsFromResolvedGraph : Graph -> List Node -> List Path
 getPathsFromResolvedGraph cutGraph repeats =
     let
-        getAStart : Graph -> Maybe Node
-        getAStart =
-            generateDegrees
-                >> List.filter (\( _, outs, _ ) -> outs == 1)
-                >> List.head
-                >> Maybe.map (\( node, _, _ ) -> node)
-
         getPaths : ( Path, Maybe Node, Graph ) -> List Path
         getPaths ( path, node, edges ) =
             case node of
@@ -62,19 +65,20 @@ getPathsFromResolvedGraph cutGraph repeats =
                     in
                     case connections of
                         Nothing ->
-                            List.reverse path :: getPaths ( [], getAStart culledEdges, culledEdges )
+                            List.reverse path :: getPaths ( [], findStartingNode culledEdges, culledEdges )
 
                         Just xs ->
                             case xs of
                                 [] ->
-                                    List.reverse path :: getPaths ( [], getAStart culledEdges, culledEdges )
+                                    List.reverse (( nodeA, "" ) :: path) :: getPaths ( [], findStartingNode culledEdges, culledEdges )
 
                                 nodeB :: _ ->
                                     getPaths ( ( nodeA, nodeB ) :: path, Just nodeB, culledEdges )
     in
     cutGraph
         |> Dict.filter (\node _ -> not <| List.member node repeats)
-        |> (\edges -> getPaths ( [], getAStart edges, edges ))
+        |> (\edges -> getPaths ( [], findStartingNode edges, edges ))
+        |> Debug.log "paths"
 
 
 resolveRepeats : Graph -> ( Graph, List Node )
@@ -87,7 +91,7 @@ resolveRepeats graph =
     ( Dict.map
         (\node connections ->
             if List.member node repeats then
-                [ "" ]
+                []
 
             else
                 List.filter (\connection -> not <| List.member connection repeats) connections
@@ -134,7 +138,14 @@ compileDot graph =
         digraphConnections =
             graph
                 |> Dict.toList
-                |> List.concatMap (\( nodeA, connections ) -> List.map (\nodeB -> ( nodeA, nodeB )) connections)
+                |> List.concatMap
+                    (\( nodeA, connections ) ->
+                        if List.isEmpty connections then
+                            [ ( nodeA, "" ) ]
+
+                        else
+                            List.map (\nodeB -> ( nodeA, nodeB )) connections
+                    )
                 |> List.sortBy Tuple.first
                 |> List.map formConnection
                 |> String.join "\n"
@@ -154,17 +165,6 @@ findPaths graph =
                 |> List.foldl (\( a, b ) ( aAcc, bBcc ) -> ( a + aAcc, b + bBcc )) ( 0, 0 )
                 |> Tuple.mapBoth (\x -> x == 1 || x == 0) (not << (<) 2)
                 |> (==) ( True, True )
-
-        startingNode : Node
-        startingNode =
-            graph
-                |> generateDegrees
-                |> List.map (\( node, outs, ins ) -> ( node, outs - ins ))
-                |> List.sortBy Tuple.second
-                |> List.reverse
-                |> List.head
-                |> Maybe.map Tuple.first
-                |> Maybe.withDefault ""
 
         nextPaths : ( List Edge, Node, Graph ) -> List Node -> List ( List Edge, Node, Graph )
         nextPaths ( path, node, lookup ) connectingNodes =
@@ -219,7 +219,7 @@ findPaths graph =
         []
 
     else
-        go [ ( [], startingNode, graph ) ]
+        go [ ( [], Maybe.withDefault "" <| findStartingNode graph, graph ) ]
 
 
 compressGraph : Graph -> Graph

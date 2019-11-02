@@ -78,7 +78,6 @@ getPathsFromResolvedGraph cutGraph repeats =
     cutGraph
         |> Dict.filter (\node _ -> not <| List.member node repeats)
         |> (\edges -> getPaths ( [], findStartingNode edges, edges ))
-        |> Debug.log "paths"
 
 
 resolveRepeats : Graph -> ( Graph, List Node )
@@ -114,11 +113,19 @@ compileDotWithPath path =
     let
         pathConnections : String
         pathConnections =
-            path
-                |> List.indexedMap (\i ( nodeA, nodeB ) -> ( nodeA, nodeB, i ))
-                |> List.sortBy (\( nodeA, _, _ ) -> nodeA)
-                |> List.map (\( nodeA, nodeB, i ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]")
-                |> String.join "\n"
+            case path of
+                [] ->
+                    ""
+
+                [ ( node, _ ) ] ->
+                    node
+
+                _ ->
+                    path
+                        |> List.indexedMap (\i ( nodeA, nodeB ) -> ( nodeA, nodeB, i ))
+                        |> List.sortBy (\( nodeA, _, _ ) -> nodeA)
+                        |> List.map (\( nodeA, nodeB, i ) -> nodeA ++ " -> " ++ nodeB ++ "[label=\"  " ++ String.fromInt (i + 1) ++ "\"]")
+                        |> String.join "\n"
     in
     "digraph {" ++ pathConnections ++ "}"
 
@@ -219,7 +226,15 @@ findPaths graph =
         []
 
     else
-        go [ ( [], Maybe.withDefault "" <| findStartingNode graph, graph ) ]
+        case Dict.keys graph of
+            [] ->
+                []
+
+            [ node ] ->
+                [ [ ( node, "" ) ] ]
+
+            _ ->
+                go [ ( [], Maybe.withDefault "" <| findStartingNode graph, graph ) ]
 
 
 compressGraph : Graph -> Graph
@@ -255,9 +270,18 @@ compressGraph graph =
                     Just parent ->
                         List.member parent omegas
 
+        nodes : List Node
+        nodes =
+            Dict.keys graph
+
         compressibleRoots : List Node
         compressibleRoots =
-            List.filter isCompressibleRoot <| Dict.keys graph
+            case List.filter isCompressibleRoot nodes of
+                [] ->
+                    [ Maybe.withDefault "" <| List.head nodes ]
+
+                compressible ->
+                    compressible
 
         compress : List Node -> Graph -> Graph
         compress toCompress graphAcc =
@@ -286,7 +310,7 @@ compressGraph graph =
 
                                 Just next ->
                                     if List.member next visited then
-                                        []
+                                        [ ( node, next ) ]
 
                                     else
                                         ( node, next ) :: compressSection next (node :: visited)
@@ -299,30 +323,34 @@ compressGraph graph =
                         compressedNodes =
                             List.concat <| List.map (\( a, b ) -> [ a, b ]) compressedSection
 
-                        lastCompressedNode : Node
-                        lastCompressedNode =
-                            Tuple.second << Maybe.withDefault ( "", "" ) << List.head <| List.reverse compressedSection
-
                         sequence : Node
                         sequence =
                             formSequenceFromPath compressedSection
 
+                        lastCompressedNode : Node
+                        lastCompressedNode =
+                            Tuple.second << Maybe.withDefault ( "", "" ) << List.head <| List.reverse compressedSection
+
                         lastConnections : List Node
                         lastConnections =
-                            case Dict.get lastCompressedNode graphAcc of
-                                Nothing ->
-                                    []
+                            if lastCompressedNode == root then
+                                []
 
-                                Just connections ->
-                                    if List.member lastCompressedNode connections then
+                            else
+                                case Dict.get lastCompressedNode graphAcc of
+                                    Nothing ->
                                         []
 
-                                    else
-                                        connections
+                                    Just connections ->
+                                        if List.member lastCompressedNode connections then
+                                            []
+
+                                        else
+                                            connections
 
                         insertUnlessEnd : Graph -> Graph
                         insertUnlessEnd graphAcc_ =
-                            if List.isEmpty lastConnections then
+                            if lastCompressedNode /= root && List.isEmpty lastConnections then
                                 graphAcc_
 
                             else

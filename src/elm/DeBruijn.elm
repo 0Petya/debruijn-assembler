@@ -228,31 +228,39 @@ findPaths graph =
 compressGraph : Graph -> Graph
 compressGraph graph =
     let
-        compressible : List Node
-        compressible =
-            List.map Tuple.first << List.filter ((>=) 1 << abs << Tuple.second) <| generateDegrees graph
-
-        findPrevious : Node -> Maybe Node
-        findPrevious node =
-            List.head << Dict.keys <| Dict.filter (\previous connections -> List.member node connections) graph
+        getTerminals : Graph -> ( List Node, List Node )
+        getTerminals graph_ =
+            let
+                degrees : List ( Node, Int )
+                degrees =
+                    generateDegrees graph
+            in
+            ( List.map Tuple.first <| List.filter ((>) -1 << Tuple.second) degrees, List.map Tuple.first <| List.filter ((<) 1 << Tuple.second) degrees )
 
         compressibleRoots : List Node
         compressibleRoots =
             let
+                ( alphas, omegas ) =
+                    getTerminals graph
+
+                findPrevious : Node -> Graph -> Maybe Node
+                findPrevious node =
+                    List.head << Dict.keys << Dict.filter (\previous connections -> List.member node connections)
+
                 isCompressibleRoot : Node -> Bool
                 isCompressibleRoot node =
-                    case findPrevious node of
-                        Nothing ->
-                            True
+                    if List.member node alphas then
+                        True
 
-                        Just parent ->
-                            not <| List.member parent compressible
+                    else
+                        case findPrevious node graph of
+                            Nothing ->
+                                True
+
+                            Just parent ->
+                                List.member parent omegas
             in
-            List.filter isCompressibleRoot compressible
-
-        findNextCompressible : Node -> Graph -> Maybe Node
-        findNextCompressible node =
-            Maybe.andThen (List.head << List.filter (\next -> List.member next compressible)) << Dict.get node
+            List.filter isCompressibleRoot <| Dict.keys graph
 
         compress : List Node -> Graph -> Graph
         compress toCompress graphAcc =
@@ -265,6 +273,17 @@ compressGraph graph =
                         updatedWithCompressedSection : Graph
                         updatedWithCompressedSection =
                             let
+                                ( alphas, omegas ) =
+                                    getTerminals graphAcc
+
+                                findNextCompressible : Node -> Graph -> Maybe Node
+                                findNextCompressible node graphAcc_ =
+                                    if List.member node omegas then
+                                        Nothing
+
+                                    else
+                                        Maybe.andThen (List.head << List.filter (\next -> not <| List.member next alphas)) <| Dict.get node graphAcc_
+
                                 compressSection : Node -> List Node -> Path
                                 compressSection node visited =
                                     case findNextCompressible node graphAcc of
@@ -308,25 +327,19 @@ compressGraph graph =
                                                 connections
 
                                 updatePrevious : Graph -> Graph
-                                updatePrevious graphAcc_ =
-                                    case findPrevious root of
-                                        Nothing ->
-                                            graphAcc_
+                                updatePrevious =
+                                    Dict.map
+                                        (\_ connections ->
+                                            List.map
+                                                (\connection ->
+                                                    if connection == root then
+                                                        sequence
 
-                                        Just previous ->
-                                            Dict.update previous
-                                                (Just
-                                                    << List.map
-                                                        (\connection ->
-                                                            if connection == root then
-                                                                sequence
-
-                                                            else
-                                                                connection
-                                                        )
-                                                    << Maybe.withDefault []
+                                                    else
+                                                        connection
                                                 )
-                                                graphAcc_
+                                                connections
+                                        )
                             in
                             graphAcc
                                 |> Dict.filter (\node _ -> not <| List.member node compressedNodes)
@@ -348,7 +361,7 @@ generateGraph nodes =
                 overlapSubject =
                     String.dropLeft 1 kmer
             in
-            Set.toList << Set.fromList << List.filter (\target -> String.dropRight 1 target == overlapSubject)
+            Set.toList << Set.fromList << List.filter (\target -> kmer /= target && String.dropRight 1 target == overlapSubject)
     in
     nodes
         |> List.map (\node -> ( node, identifyOverlaps node nodes ))

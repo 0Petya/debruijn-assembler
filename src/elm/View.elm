@@ -43,7 +43,7 @@ view model =
         , div [ class "error-messages" ] <| List.map (\error -> p [] [ text error ]) model.errors
         , button [ class "compress", onClick Compress, hidden <| not model.isGenerated ]
             [ text "Compress" ]
-        , div [ hidden << not <| model.isGenerated && model.isCompressed ]
+        , div [ hidden <| not model.isGenerated ]
             [ p [ class "has-eulerian-path" ]
                 [ text <|
                     if List.isEmpty model.paths then

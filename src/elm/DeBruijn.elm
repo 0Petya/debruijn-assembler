@@ -142,27 +142,28 @@ compileDot graph =
     "digraph {" ++ digraphConnections ++ "}"
 
 
-hasEulerianPath : Graph -> Bool
-hasEulerianPath =
-    generateDegrees
-        >> List.map (\( _, outs, ins ) -> outs - ins)
-        >> List.map (\degree -> ( degree, abs degree ))
-        >> List.foldl (\( a, b ) ( aAcc, bBcc ) -> ( a + aAcc, b + bBcc )) ( 0, 0 )
-        >> Tuple.mapBoth (\x -> x == 1 || x == 0) (not << (<) 2)
-        >> (==) ( True, True )
-
-
 findPaths : Graph -> List Path
 findPaths graph =
     let
+        hasEulerianPath : Bool
+        hasEulerianPath =
+            graph
+                |> generateDegrees
+                |> List.map (\( _, outs, ins ) -> outs - ins)
+                |> List.map (\degree -> ( degree, abs degree ))
+                |> List.foldl (\( a, b ) ( aAcc, bBcc ) -> ( a + aAcc, b + bBcc )) ( 0, 0 )
+                |> Tuple.mapBoth (\x -> x == 1 || x == 0) (not << (<) 2)
+                |> (==) ( True, True )
+
         startingNode : Node
         startingNode =
             graph
                 |> generateDegrees
-                |> List.sortBy (\( _, outs, _ ) -> outs)
+                |> List.map (\( node, outs, ins ) -> ( node, outs - ins ))
+                |> List.sortBy Tuple.second
                 |> List.reverse
                 |> List.head
-                |> Maybe.map (\( node, _, _ ) -> node)
+                |> Maybe.map Tuple.first
                 |> Maybe.withDefault ""
 
         nextPaths : ( List Edge, Node, Graph ) -> List Node -> List ( List Edge, Node, Graph )
@@ -214,7 +215,7 @@ findPaths graph =
                         else
                             go (nextPaths ( path, node, lookup ) connectingNodes ++ xs)
     in
-    if not <| hasEulerianPath graph then
+    if not hasEulerianPath then
         []
 
     else
@@ -324,6 +325,14 @@ compressGraph graph =
                                             else
                                                 connections
 
+                                insertUnlessEnd : Graph -> Graph
+                                insertUnlessEnd graphAcc_ =
+                                    if List.isEmpty lastConnections then
+                                        graphAcc_
+
+                                    else
+                                        Dict.insert sequence lastConnections graphAcc_
+
                                 updatePrevious : Graph -> Graph
                                 updatePrevious =
                                     Dict.map
@@ -345,7 +354,7 @@ compressGraph graph =
                             else
                                 graphAcc
                                     |> Dict.filter (\node _ -> not <| List.member node compressedNodes)
-                                    |> Dict.insert sequence lastConnections
+                                    |> insertUnlessEnd
                                     |> updatePrevious
                     in
                     compress roots updatedWithCompressedSection

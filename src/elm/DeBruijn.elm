@@ -20,15 +20,29 @@ type alias Path =
     List Edge
 
 
+generateDegrees : Graph -> List ( Node, Int, Int )
+generateDegrees graph =
+    let
+        ins : List Node
+        ins =
+            List.concat <| Dict.values graph
+
+        count : comparable -> List comparable -> Int
+        count x =
+            List.length << List.filter ((==) x)
+    in
+    List.map (\node -> ( node, List.length << Maybe.withDefault [] <| Dict.get node graph, count node ins )) <| Dict.keys graph
+
+
 getPathsFromResolvedGraph : Graph -> List Node -> List Path
 getPathsFromResolvedGraph cutGraph repeats =
     let
         getAStart : Graph -> Maybe Node
         getAStart =
             generateDegrees
-                >> List.filter ((<) 0 << Tuple.second)
+                >> List.filter (\( _, outs, _ ) -> outs == 1)
                 >> List.head
-                >> Maybe.map Tuple.first
+                >> Maybe.map (\( node, _, _ ) -> node)
 
         getPaths : ( Path, Maybe Node, Graph ) -> List Path
         getPaths ( path, node, edges ) =
@@ -128,38 +142,10 @@ compileDot graph =
     "digraph {" ++ digraphConnections ++ "}"
 
 
-generateDegrees : Graph -> List ( Node, Int )
-generateDegrees graph =
-    let
-        outs : List Node
-        outs =
-            Dict.keys graph
-
-        ins : List Node
-        ins =
-            List.concat <| Dict.values graph
-
-        count : comparable -> List comparable -> Int
-        count x =
-            List.length << List.filter ((==) x)
-    in
-    List.map (\node -> ( node, (List.length << Maybe.withDefault [] <| Dict.get node graph) - count node ins )) outs
-
-
-findStartingNode : Graph -> Node
-findStartingNode =
-    generateDegrees
-        >> List.sortBy Tuple.second
-        >> List.reverse
-        >> List.head
-        >> Maybe.map Tuple.first
-        >> Maybe.withDefault ""
-
-
 hasEulerianPath : Graph -> Bool
 hasEulerianPath =
     generateDegrees
-        >> List.map Tuple.second
+        >> List.map (\( _, outs, ins ) -> outs - ins)
         >> List.map (\degree -> ( degree, abs degree ))
         >> List.foldl (\( a, b ) ( aAcc, bBcc ) -> ( a + aAcc, b + bBcc )) ( 0, 0 )
         >> Tuple.mapBoth (\x -> x == 1 || x == 0) (not << (<) 2)
@@ -169,6 +155,16 @@ hasEulerianPath =
 findPaths : Graph -> List Path
 findPaths graph =
     let
+        startingNode : Node
+        startingNode =
+            graph
+                |> generateDegrees
+                |> List.sortBy (\( _, outs, _ ) -> outs)
+                |> List.reverse
+                |> List.head
+                |> Maybe.map (\( node, _, _ ) -> node)
+                |> Maybe.withDefault ""
+
         nextPaths : ( List Edge, Node, Graph ) -> List Node -> List ( List Edge, Node, Graph )
         nextPaths ( path, node, lookup ) connectingNodes =
             case connectingNodes of
@@ -222,7 +218,7 @@ findPaths graph =
         []
 
     else
-        go [ ( [], findStartingNode graph, graph ) ]
+        go [ ( [], startingNode, graph ) ]
 
 
 compressGraph : Graph -> Graph
@@ -231,11 +227,13 @@ compressGraph graph =
         getTerminals : Graph -> ( List Node, List Node )
         getTerminals graph_ =
             let
-                degrees : List ( Node, Int )
+                degrees : List ( Node, Int, Int )
                 degrees =
                     generateDegrees graph
             in
-            ( List.map Tuple.first <| List.filter ((>) -1 << Tuple.second) degrees, List.map Tuple.first <| List.filter ((<) 1 << Tuple.second) degrees )
+            ( List.map (\( node, _, _ ) -> node) <| List.filter (\( _, _, ins ) -> ins > 1) degrees
+            , List.map (\( node, _, _ ) -> node) <| List.filter (\( _, outs, _ ) -> outs > 1) degrees
+            )
 
         compressibleRoots : List Node
         compressibleRoots =
@@ -348,7 +346,7 @@ compressGraph graph =
                     in
                     compress roots updatedWithCompressedSection
     in
-    compress compressibleRoots graph
+    compress (Debug.log "compressible" compressibleRoots) graph
 
 
 generateGraph : List Node -> Graph

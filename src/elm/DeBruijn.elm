@@ -339,14 +339,18 @@ compressGraph graph =
                                                 connections
                                         )
                             in
-                            graphAcc
-                                |> Dict.filter (\node _ -> not <| List.member node compressedNodes)
-                                |> Dict.insert sequence lastConnections
-                                |> updatePrevious
+                            if List.isEmpty compressedSection then
+                                graphAcc
+
+                            else
+                                graphAcc
+                                    |> Dict.filter (\node _ -> not <| List.member node compressedNodes)
+                                    |> Dict.insert sequence lastConnections
+                                    |> updatePrevious
                     in
                     compress roots updatedWithCompressedSection
     in
-    compress (Debug.log "compressible" compressibleRoots) graph
+    compress compressibleRoots graph
 
 
 generateGraph : List Node -> Graph

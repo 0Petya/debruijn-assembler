@@ -2,13 +2,11 @@
 
 # De Bruijn Graph Sequence Assembler
 
-An online De Bruijn graph sequence assembler.
+An online De Bruijn graph sequence assembler that will generate a visual and interactive graph. This tool is intended for educational use; it's probably too slow to use in production.
 
 You can input raw seqencing reads directly into it, or upload a [FASTQ](https://en.wikipedia.org/wiki/De_Bruijn_graph) or [FASTA](https://en.wikipedia.org/wiki/FASTA_format) file. It will then generate a De Bruijn graph using [d3-graphviz](https://github.com/magjac/d3-graphviz) and will find all possible [Eulerian paths](https://en.wikipedia.org/wiki/Eulerian_path) (the _solutions_) from the only possible node, or a random node (that will work) if exists an Eulerian cycle. The core is written in [Elm](https://elm-lang.org), a pure functional language that compiles to JavaScript.
 
-This tool is intended for educational use; it's probably too slow to use in production.
-
-There are four major components to the tool: generating the [kmers](https://en.wikipedia.org/wiki/K-mer), generating the graph, compressing the graph, finding all Eulerian paths from a starting kmer, and resolving repeats.
+There are five major components to the tool: generating the [kmers](https://en.wikipedia.org/wiki/K-mer), generating the graph, compressing the graph, finding all Eulerian paths from a starting kmer, and resolving repeats.
 
 * Generating kmers uses a sliding window and has a time complexity of `O(n^2)` where `n` is the number of reads and `k` is the kmer size desired.
 

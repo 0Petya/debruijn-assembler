@@ -1,6 +1,7 @@
 module Update exposing (update)
 
-import DeBruijn exposing (Graph, compileDot, compileDotWithPath, compressGraph, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
+import DeBruijn exposing (Graph, compressGraph, findPaths, formSequenceFromPath, generateGraph, generateKmers, getPathsFromResolvedGraph, resolveRepeats)
+import Dot exposing (compileDot, compileDotWithPath)
 import File
 import File.Select as Select
 import Message exposing (..)

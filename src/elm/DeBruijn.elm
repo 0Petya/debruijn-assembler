@@ -190,20 +190,20 @@ compressGraph graph =
     let
         findPrevious : Node -> Graph -> Maybe Node
         findPrevious node =
-            List.head << Dict.keys << Dict.filter (\previous connections -> List.member node connections)
+            List.head << Dict.keys << Dict.filter (\_ connections -> List.member node connections)
 
         degrees : List ( Node, Int, Int )
         degrees =
             generateDegrees graph
 
-        getTerminals : Graph -> ( List Node, List Node )
-        getTerminals graph_ =
+        getTerminals : ( List Node, List Node )
+        getTerminals =
             ( List.map (\( node, _, _ ) -> node) <| List.filter (\( _, _, ins ) -> ins > 1) degrees
             , List.map (\( node, _, _ ) -> node) <| List.filter (\( _, outs, _ ) -> outs > 1) degrees
             )
 
         ( alphas, omegas ) =
-            getTerminals graph
+            getTerminals
 
         isCompressibleRoot : Node -> Bool
         isCompressibleRoot node =
@@ -240,7 +240,7 @@ compressGraph graph =
                 root :: roots ->
                     let
                         ( alphas_, omegas_ ) =
-                            getTerminals graphAcc
+                            getTerminals
 
                         findNextCompressible : Node -> Graph -> Maybe Node
                         findNextCompressible node graphAcc_ =

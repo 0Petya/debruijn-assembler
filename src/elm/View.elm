@@ -1,9 +1,9 @@
 module View exposing (view)
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html exposing (Html, a, button, div, h2, input, label, p, text, textarea)
+import Html.Attributes exposing (class, classList, disabled, hidden, href, id)
 import Html.Events exposing (onClick, onInput)
-import Message exposing (..)
+import Message exposing (Msg(..))
 import Model exposing (Model)
 
 

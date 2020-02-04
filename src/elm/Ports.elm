@@ -1,4 +1,4 @@
-port module Ports exposing (..)
+port module Ports exposing (clearGraph, displaySequence, renderDot)
 
 
 port renderDot : String -> Cmd msg

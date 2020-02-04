@@ -4,9 +4,9 @@ import DeBruijn exposing (Graph, compressGraph, findPaths, formSequenceFromPath,
 import Dot exposing (compileDot, compileDotWithPath)
 import File
 import File.Select as Select
-import Message exposing (..)
+import Message exposing (Msg(..))
 import Model exposing (Model)
-import Ports exposing (..)
+import Ports exposing (clearGraph, displaySequence, renderDot)
 import Set
 import Task
 

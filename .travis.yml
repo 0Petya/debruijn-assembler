@@ -6,6 +6,8 @@ language: elm
 elm:
     - latest-0.19.1
 
+elm-test: 0.19.1-revision2
+
 script:
     - make env=prod
 

@@ -1,0 +1,23 @@
+before_install:
+    - npm install -g browserify
+    - npm install -g uglify-js
+
+language: elm
+elm:
+    - latest-0.19.1
+
+elm-test: 0.19.1-revision2
+elm-format: 0.8.2
+
+script:
+    - make env=prod
+
+before_deploy: 
+    - rm .gitignore
+
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    on:
+        branch: master

@@ -1,0 +1,132 @@
+body {
+    display: flex;
+}
+
+button {
+    transition: background-color 0.1s linear;
+    background-color: deepskyblue;
+    box-shadow: 3px 3px 20px 10px #00000006;
+    color: white;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 2px;
+}
+
+body #panel button:hover {
+    background-color: cornflowerblue;
+}
+
+#panel {
+    border-right: 2px solid lightgray;
+    padding-right: 10px;
+    height: 100%;
+    width: 268px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+#panel .header {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+#panel .source-link {
+    margin-bottom: 2em;
+}
+
+#panel label {
+    color: darkslategray;
+}
+
+#panel .sequence-input, #panel .k-input{
+    display: block;
+    margin-bottom: 1em;
+    border-bottom: 2px solid cyan;
+    background-color: #eee;
+    box-shadow: 3px 3px 20px 10px #00000006;
+    font-size: 14px;
+    padding: 5px 10px;
+    border: 0px;
+    border-bottom: 2px solid deepskyblue;
+    width: 250px;
+    margin-top: 6px;
+}
+
+#panel .sequence-input {
+    height: 12em;
+}
+
+#panel .sequence-input:disabled {
+    border-bottom-color: lightgrey;
+    opacity: 0.5;
+}
+
+#panel .file-upload {
+    color: darkslategrey;
+}
+
+#panel .file-upload button {
+    margin-bottom: 2em;
+    margin-right: 0.5em;
+}
+
+#panel .generate,.compress {
+    width: 200px;
+    font-size: 24px;
+    padding: 5px 30px;
+    margin: 0 auto;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+#panel .error-messages {
+    color: red;
+}
+
+#panel .has-eulerian-path {
+    color: darkslategray;
+    border-top: 2px solid lightgray;
+    padding-top: 1em;
+}
+
+#panel .paths {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+#panel .path {
+    width: 4em;
+    height: 3em;
+    margin-right: 0.5em;
+    margin-bottom: 0.5em;
+    font-weight: bold;
+}
+
+#panel .cut-repeats {
+    height: 3em;
+    width: 17.5em;
+}
+
+#panel .current-path {
+    border-color: grey;
+}
+
+#display {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#display #path-sequence {
+    margin-bottom: 10px;
+}
+
+#display #graph {
+    width: 100%;
+
+    display: flex;
+    justify-content: center;
+}
